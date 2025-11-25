@@ -1,0 +1,1259 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gauss-Jordan Inverse - Linear Algebra Code World</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --neon-blue: #00CCFF;
+            --neon-purple: #6C00FF;
+            --fluorescent-green: #00FFC6;
+            --deep-space: #0A0A14;
+            --holographic-silver: #C0C0C0;
+            --neon-red: #FF0066;
+            --electric-blue: #0099FF;
+        }
+        
+        body {
+            font-family: 'Exo 2', sans-serif;
+            background: var(--deep-space);
+            overflow-x: hidden;
+        }
+        
+        .orbitron {
+            font-family: 'Orbitron', monospace;
+        }
+        
+        .cosmic-bg {
+            background: linear-gradient(135deg, var(--deep-space) 0%, #1a1a2e 50%, #16213e 100%);
+            position: relative;
+        }
+        
+        .holographic-grid {
+            background-image: 
+                linear-gradient(rgba(0, 204, 255, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 204, 255, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: gridMove 20s linear infinite;
+        }
+        
+        @keyframes gridMove {
+            0% { background-position: 0 0; }
+            100% { background-position: 50px 50px; }
+        }
+        
+        .nav-blur {
+            backdrop-filter: blur(20px);
+            background: rgba(10, 10, 20, 0.8);
+        }
+        
+        .code-container {
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 204, 255, 0.3);
+            border-radius: 10px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        
+        .input-container {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+        
+        .matrix-input {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(0, 204, 255, 0.3);
+            color: white;
+            font-family: 'Courier New', monospace;
+            resize: vertical;
+        }
+        
+        .matrix-input:focus {
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 10px rgba(0, 204, 255, 0.3);
+            outline: none;
+        }
+        
+        .matrix-input.error {
+            border-color: var(--neon-red);
+            box-shadow: 0 0 10px rgba(255, 0, 102, 0.3);
+            animation: shake 0.5s ease-in-out;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        
+        .result-container {
+            background: rgba(0, 255, 198, 0.1);
+            border: 1px solid rgba(0, 255, 198, 0.3);
+            border-radius: 10px;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes glow {
+            from { box-shadow: 0 0 10px rgba(0, 255, 198, 0.3); }
+            to { box-shadow: 0 0 20px rgba(0, 255, 198, 0.6); }
+        }
+        
+        .liquid-metal {
+            background: linear-gradient(45deg, #2a2a3e, #3a3a4e, #2a2a3e);
+            background-size: 400% 400%;
+            animation: liquidFlow 8s ease-in-out infinite;
+        }
+        
+        @keyframes liquidFlow {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        
+        .electromagnetic-pulse {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .electromagnetic-pulse::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: radial-gradient(circle, var(--fluorescent-green), transparent);
+            transform: translate(-50%, -50%);
+            transition: all 0.6s ease;
+            border-radius: 50%;
+        }
+        
+        .electromagnetic-pulse:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+        
+        .particle-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: var(--neon-blue);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0; }
+            50% { transform: translateY(-100px) rotate(180deg); opacity: 1; }
+        }
+        
+        .syntax-highlight .keyword { color: #ff79c6; }
+        .syntax-highlight .type { color: #8be9fd; }
+        .syntax-highlight .function { color: #50fa7b; }
+        .syntax-highlight .comment { color: #6272a4; }
+        .syntax-highlight .string { color: #f1fa8c; }
+        .syntax-highlight .number { color: #bd93f9; }
+        
+        .breadcrumb {
+            color: var(--holographic-silver);
+            font-size: 14px;
+        }
+        
+        .breadcrumb .current {
+            color: var(--neon-blue);
+        }
+        
+        .option-button {
+            background: rgba(0, 204, 255, 0.1);
+            border: 1px solid rgba(0, 204, 255, 0.3);
+            color: var(--neon-blue);
+            transition: all 0.3s ease;
+        }
+        
+        .option-button:hover {
+            background: rgba(0, 204, 255, 0.2);
+            box-shadow: 0 0 15px rgba(0, 204, 255, 0.4);
+        }
+        
+        .process-step {
+            background: rgba(255, 255, 255, 0.05);
+            border-left: 3px solid var(--fluorescent-green);
+            margin-bottom: 15px;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        
+        .process-step.highlight {
+            background: rgba(0, 255, 198, 0.1);
+            border-left-color: var(--fluorescent-green);
+            box-shadow: 0 0 10px rgba(0, 255, 198, 0.2);
+        }
+        
+        /* 新增样式：中英双行文 */
+        .bilingual {
+            line-height: 1.6;
+        }
+        
+        .bilingual .en {
+            color: var(--holographic-silver);
+            font-size: 0.9em;
+        }
+        
+        .bilingual .zh {
+            color: white;
+            font-size: 1em;
+        }
+        
+        /* 新增样式：矩阵显示 */
+        .matrix-display {
+            display: inline-block;
+            padding: 10px;
+            margin: 5px 0;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
+            border: 1px solid rgba(0, 204, 255, 0.2);
+        }
+        
+        .matrix-row {
+            display: flex;
+            justify-content: center;
+        }
+        
+        .matrix-cell {
+            padding: 5px 10px;
+            text-align: center;
+            min-width: 40px;
+            font-family: 'Courier New', monospace;
+            color: white !important; /* 确保矩阵单元格文字为白色 */
+        }
+        
+        .matrix-bracket {
+            font-size: 1.5em;
+            font-weight: bold;
+            padding: 0 5px;
+            display: flex;
+            align-items: center;
+            color: white !important; /* 确保矩阵括号也是白色 */
+        }
+        
+        .calculation-step {
+            margin: 10px 0;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 5px;
+            color: white; /* 确保计算过程中的文字也是白色 */
+        }
+        
+        .dimension-info {
+            color: var(--neon-blue);
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+        
+        .inverse-result {
+            color: white !important; /* 确保逆矩阵结果文字为白色 */
+            font-size: 1.3em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .verification-text {
+            color: white !important; /* 确保验证文字为白色 */
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+        
+        .augmented-matrix {
+            border-left: 3px solid var(--neon-purple);
+            padding-left: 10px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body class="cosmic-bg min-h-screen">
+    <!-- Particle Background -->
+    <div class="particle-container" id="particles"></div>
+    
+    <!-- Holographic Grid -->
+    <div class="holographic-grid fixed inset-0 opacity-30"></div>
+    
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 nav-blur border-b border-opacity-20 border-blue-400">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="orbitron text-xl font-bold text-blue-400">
+                    <div class="bilingual">
+                        <div class="zh">高斯-约当求逆</div>
+                        <div class="en">Gauss-Jordan Inverse</div>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-6">
+                    <div class="breadcrumb">
+                        <a href="index.html" class="hover:text-blue-400">Home</a> → 
+                        <a href="directory.html" class="hover:text-blue-400">Directory</a> → 
+                        <span class="current">
+                            <div class="bilingual">
+                                <div class="zh">高斯-约当求逆</div>
+                                <div class="en">Gauss-Jordan Inverse</div>
+                            </div>
+                        </span>
+                    </div>
+                    <button class="px-6 py-2 liquid-metal text-white rounded-full electromagnetic-pulse" onclick="window.location.href='directory.html'">
+                        <div class="bilingual">
+                            <div class="zh">← 目录</div>
+                            <div class="en">← Directory</div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <main class="pt-24 pb-16">
+        <div class="container mx-auto px-6">
+            <!-- Header -->
+            <div class="text-center mb-12">
+                <h1 class="orbitron text-5xl md:text-6xl font-black mb-6">
+                    <span class="bg-gradient-to-r from-blue-400 to-purple-600 bg-clip-text text-transparent">
+                        <div class="bilingual">
+                            <div class="zh">高斯-约当</div>
+                            <div class="en">Gauss-Jordan</div>
+                        </div>
+                    </span>
+                    <span class="bg-gradient-to-r from-green-400 to-blue-400 bg-clip-text text-transparent">
+                        <div class="bilingual">
+                            <div class="zh">求逆</div>
+                            <div class="en">Inverse</div>
+                        </div>
+                    </span>
+                </h1>
+                <p class="text-xl text-gray-300 max-w-3xl mx-auto bilingual">
+                    <span class="zh">使用高斯-约当消元法求方阵的逆矩阵。将 [A|I] 变换为 [I|A⁻¹]，包含逐步主元选择、行操作和验证。</span>
+                    <span class="en">Find the inverse of a square matrix using Gauss-Jordan elimination. Transform [A|I] to [I|A⁻¹] with step-by-step pivot selection, row operations, and verification.</span>
+                </p>
+            </div>
+            
+            <!-- Main Layout -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-7xl mx-auto">
+                <!-- Code Display Section -->
+                <div class="space-y-6">
+                    <div class="code-container p-6">
+                        <h3 class="orbitron text-xl font-bold mb-4 text-blue-400 bilingual">
+                            <div class="zh">核心实现</div>
+                            <div class="en">Core Implementation</div>
+                        </h3>
+                        <pre class="text-sm text-gray-300 overflow-x-auto"><code class="syntax-highlight">
+<span class="type">Matrix</span> <span class="function">gaussJordanInverse</span>(<span class="keyword">const</span> <span class="type">Matrix</span>& A) {
+    <span class="keyword">const</span> <span class="type">int</span> n = A.rows;
+    
+    <span class="comment">// Create augmented matrix [A|I]</span>
+    <span class="type">Matrix</span> aug(n, <span class="number">2</span>*n);
+    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i < n; i++) {
+        <span class="keyword">for</span> (<span class="type">int</span> j = <span class="number">0</span>; j < n; j++) {
+            aug.data[i][j] = A.data[i][j];
+        }
+        aug.data[i][n+i] = <span class="number">1</span>; <span class="comment">// Identity matrix</span>
+    }
+    
+    <span class="comment">// Gauss-Jordan elimination</span>
+    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i < n; i++) {
+        <span class="comment">// Pivot selection</span>
+        <span class="type">int</span> pivot = i;
+        <span class="keyword">for</span> (<span class="type">int</span> j = i+<span class="number">1</span>; j < n; j++) {
+            <span class="keyword">if</span> (<span class="function">abs</span>(aug.data[j][i]) > <span class="function">abs</span>(aug.data[pivot][i])) {
+                pivot = j;
+            }
+        }
+        
+        <span class="comment">// Check for singularity</span>
+        <span class="keyword">if</span> (<span class="function">abs</span>(aug.data[pivot][i]) < <span class="number">1e-10</span>) {
+            <span class="keyword">throw</span> <span class="string">"Matrix is singular"</span>;
+        }
+        
+        <span class="comment">// Row swap if needed</span>
+        <span class="keyword">if</span> (pivot != i) {
+            <span class="function">swapRows</span>(aug, i, pivot);
+        }
+        
+        <span class="comment">// Normalize pivot row</span>
+        <span class="type">double</span> pivotVal = aug.data[i][i];
+        <span class="keyword">for</span> (<span class="type">int</span> j = i; j < <span class="number">2</span>*n; j++) {
+            aug.data[i][j] /= pivotVal;
+        }
+        
+        <span class="comment">// Eliminate other rows</span>
+        <span class="keyword">for</span> (<span class="type">int</span> j = <span class="number">0</span>; j < n; j++) {
+            <span class="keyword">if</span> (j != i) {
+                <span class="type">double</span> factor = aug.data[j][i];
+                <span class="keyword">for</span> (<span class="type">int</span> k = i; k < <span class="number">2</span>*n; k++) {
+                    aug.data[j][k] -= factor * aug.data[i][k];
+                }
+            }
+        }
+    }
+    
+    <span class="comment">// Extract inverse from right half</span>
+    <span class="type">Matrix</span> inverse(n, n);
+    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i < n; i++) {
+        <span class="keyword">for</span> (<span class="type">int</span> j = <span class="number">0</span>; j < n; j++) {
+            inverse.data[i][j] = aug.data[i][n+j];
+        }
+    }
+    
+    <span class="keyword">return</span> inverse;
+}</code></pre>
+                    </div>
+                    
+                    <!-- Algorithm Explanation -->
+                    <div class="input-container p-6">
+                        <h3 class="orbitron text-xl font-bold mb-4 text-green-400 bilingual">
+                            <div class="zh">算法步骤</div>
+                            <div class="en">Algorithm Steps</div>
+                        </h3>
+                        <div class="space-y-3">
+                            <div class="process-step bilingual">
+                                <div class="zh"><strong>1. 增广矩阵：</strong>将单位矩阵附加到 A 形成 [A|I]</div>
+                                <div class="en"><strong>1. Augmented Matrix:</strong> Create [A|I] by appending identity matrix to A</div>
+                            </div>
+                            <div class="process-step bilingual">
+                                <div class="zh"><strong>2. 主元选择：</strong>在当前列中寻找具有最大绝对值的行</div>
+                                <div class="en"><strong>2. Pivot Selection:</strong> Find row with maximum absolute value in current column</div>
+                            </div>
+                            <div class="process-step highlight bilingual">
+                                <div class="zh"><strong>3. 行操作：</strong>归一化主元行并消去其他行</div>
+                                <div class="en"><strong>3. Row Operations:</strong> Normalize pivot row and eliminate other rows</div>
+                            </div>
+                            <div class="process-step bilingual">
+                                <div class="zh"><strong>4. 提取逆矩阵：</strong>增广矩阵的右半部分成为 A⁻¹</div>
+                                <div class="en"><strong>4. Extract Inverse:</strong> Right half of augmented matrix becomes A⁻¹</div>
+                            </div>
+                            <div class="process-step bilingual">
+                                <div class="zh"><strong>5. 验证：</strong>检查 A × A⁻¹ = I 在容差范围内</div>
+                                <div class="en"><strong>5. Verification:</strong> Check that A × A⁻¹ = I within tolerance</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Interactive Input Section -->
+                <div class="space-y-6">
+                    <div class="input-container p-6">
+                        <h3 class="orbitron text-xl font-bold mb-6 text-green-400 bilingual">
+                            <div class="zh">让我们解决问题</div>
+                            <div class="en">Let's Solve the Problem</div>
+                        </h3>
+                        
+                        <!-- Matrix Input -->
+                        <div class="mb-6">
+                            <label class="block text-blue-400 font-semibold mb-2 bilingual">
+                                <div class="zh">方阵 A</div>
+                                <div class="en">Square Matrix A</div>
+                            </label>
+                            <textarea 
+                                id="matrixInput" 
+                                class="matrix-input w-full h-40 p-3 rounded" 
+                                placeholder="Enter square matrix (rows separated by new lines, elements by spaces)&#10;Example:&#10;1 2 3&#10;0 1 4&#10;5 6 0"
+                            ></textarea>
+                            <div id="matrix-error" class="text-red-400 text-sm mt-2 hidden"></div>
+                        </div>
+                        
+                        <!-- Calculate Button -->
+                        <button 
+                            id="calculateBtn" 
+                            class="w-full py-3 liquid-metal text-white rounded-lg electromagnetic-pulse orbitron font-bold"
+                        >
+                            <div class="bilingual">
+                                <div class="zh">计算逆矩阵</div>
+                                <div class="en">Calculate Inverse</div>
+                            </div>
+                        </button>
+                    </div>
+                    
+                    <!-- Results Section -->
+                    <div id="resultsSection" class="hidden">
+                        <div class="result-container p-6">
+                            <h3 class="orbitron text-xl font-bold mb-4 text-green-400 bilingual">
+                                <div class="zh">结果</div>
+                                <div class="en">Result</div>
+                            </h3>
+                            <div id="inverseResult" class="inverse-result bilingual">
+                                <div class="zh">逆矩阵 A⁻¹:</div>
+                                <div class="en">Inverse Matrix A⁻¹:</div>
+                            </div>
+                            <div id="resultMatrix" class="bg-black bg-opacity-50 p-4 rounded mb-4"></div>
+                            
+                            <!-- Verification Results -->
+                            <div id="verification" class="space-y-4">
+                                <h4 class="text-blue-400 font-semibold bilingual">
+                                    <div class="zh">验证: A × A⁻¹</div>
+                                    <div class="en">Verification: A × A⁻¹</div>
+                                </h4>
+                                <div id="verificationResult" class="bg-black bg-opacity-50 p-4 rounded"></div>
+                                <div id="verificationStatus" class="verification-text"></div>
+                            </div>
+                            
+                            <!-- Options -->
+                            <div class="mt-6 space-y-3">
+                                <h4 class="text-blue-400 font-semibold bilingual">
+                                    <div class="zh">您想接下来做什么？</div>
+                                    <div class="en">What would you like to do next?</div>
+                                </h4>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                    <button id="continueBtn" class="option-button px-4 py-2 rounded text-sm bilingual">
+                                        <div class="zh">继续</div>
+                                        <div class="en">Continue</div>
+                                    </button>
+                                    <button id="directoryBtn" class="option-button px-4 py-2 rounded text-sm bilingual">
+                                        <div class="zh">目录</div>
+                                        <div class="en">Directory</div>
+                                    </button>
+                                    <button id="processBtn" class="option-button px-4 py-2 rounded text-sm bilingual">
+                                        <div class="zh">查看过程</div>
+                                        <div class="en">View Process</div>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Process Visualization -->
+                    <div id="processSection" class="hidden">
+                        <div class="input-container p-6">
+                            <h3 class="orbitron text-xl font-bold mb-4 text-blue-400 bilingual">
+                                <div class="zh">计算过程</div>
+                                <div class="en">Calculation Process</div>
+                            </h3>
+                            <div id="processSteps" class="space-y-3"></div>
+                            <div class="mt-4">
+                                <button id="downloadBtn" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors bilingual">
+                                    <div class="zh">下载过程</div>
+                                    <div class="en">Download Process</div>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Footer -->
+    <footer class="py-12 border-t border-gray-800">
+        <div class="container mx-auto px-6 text-center">
+            <div class="orbitron text-lg text-blue-400 mb-4 bilingual">
+                <div class="zh">© 2025 czz的线性代数代码世界</div>
+                <div class="en">© 2025 czz's Linear Algebra Code World</div>
+            </div>
+            <p class="text-gray-400 bilingual">
+                <span class="zh">数学与未来相遇的地方</span>
+                <span class="en">Where mathematics meets the future</span>
+            </p>
+        </div>
+    </footer>
+    
+    <script>
+        // Extended Matrix Operations for Gauss-Jordan
+        const ExtendedMatrixOperations = {
+            // Parse matrix from string input
+            parseMatrix(input) {
+                if (!input.trim()) {
+                    throw new Error('Matrix input is empty');
+                }
+                
+                const rows = input.trim().split('\n');
+                const matrix = [];
+                
+                for (let i = 0; i < rows.length; i++) {
+                    const row = rows[i].trim().split(/\s+/);
+                    
+                    if (row.length === 0 || (row.length === 1 && row[0] === '')) {
+                        continue; // Skip empty rows
+                    }
+                    
+                    const numRow = [];
+                    for (let j = 0; j < row.length; j++) {
+                        const num = parseFloat(row[j]);
+                        if (isNaN(num)) {
+                            throw new Error(`Invalid number at row ${i+1}, column ${j+1}: "${row[j]}"`);
+                        }
+                        numRow.push(num);
+                    }
+                    
+                    matrix.push(numRow);
+                }
+                
+                if (matrix.length === 0) {
+                    throw new Error('Matrix has no valid rows');
+                }
+                
+                return matrix;
+            },
+            
+            // Check if matrix is valid (all rows have same length)
+            isValidMatrix(matrix) {
+                if (matrix.length === 0) return false;
+                
+                const cols = matrix[0].length;
+                for (let i = 1; i < matrix.length; i++) {
+                    if (matrix[i].length !== cols) {
+                        return false;
+                    }
+                }
+                
+                return true;
+            },
+            
+            // Format matrix for display with proper brackets
+            formatMatrix(matrix) {
+                if (!matrix || matrix.length === 0) return '';
+                
+                const container = document.createElement('div');
+                container.className = 'matrix-display';
+                
+                const bracketLeft = document.createElement('div');
+                bracketLeft.className = 'matrix-bracket';
+                bracketLeft.textContent = '[';
+                container.appendChild(bracketLeft);
+                
+                const matrixContent = document.createElement('div');
+                
+                for (let i = 0; i < matrix.length; i++) {
+                    const rowDiv = document.createElement('div');
+                    rowDiv.className = 'matrix-row';
+                    
+                    for (let j = 0; j < matrix[i].length; j++) {
+                        const cell = document.createElement('div');
+                        cell.className = 'matrix-cell';
+                        cell.textContent = matrix[i][j].toFixed(4);
+                        rowDiv.appendChild(cell);
+                    }
+                    
+                    matrixContent.appendChild(rowDiv);
+                }
+                
+                container.appendChild(matrixContent);
+                
+                const bracketRight = document.createElement('div');
+                bracketRight.className = 'matrix-bracket';
+                bracketRight.textContent = ']';
+                container.appendChild(bracketRight);
+                
+                return container;
+            },
+            
+            // Create augmented matrix [A|I]
+            createAugmentedMatrix: function(A) {
+                const n = A.length;
+                const aug = [];
+                
+                for (let i = 0; i < n; i++) {
+                    aug[i] = [];
+                    for (let j = 0; j < n; j++) {
+                        aug[i][j] = A[i][j];
+                    }
+                    for (let j = n; j < 2 * n; j++) {
+                        aug[i][j] = (j - n === i) ? 1 : 0;
+                    }
+                }
+                
+                return aug;
+            },
+            
+            // Swap rows in matrix
+            swapRows: function(matrix, i, j) {
+                const temp = [...matrix[i]];
+                matrix[i] = [...matrix[j]];
+                matrix[j] = temp;
+            },
+            
+            // Extract right half of augmented matrix
+            extractRightHalf: function(aug) {
+                const n = aug.length;
+                const result = [];
+                
+                for (let i = 0; i < n; i++) {
+                    result[i] = [];
+                    for (let j = n; j < 2 * n; j++) {
+                        result[i][j - n] = aug[i][j];
+                    }
+                }
+                
+                return result;
+            },
+            
+            // Matrix multiplication
+            multiply: function(A, B) {
+                const m = A.length;
+                const n = A[0].length;
+                const p = B[0].length;
+                
+                if (n !== B.length) {
+                    throw new Error('Matrix dimensions incompatible for multiplication');
+                }
+                
+                const result = [];
+                for (let i = 0; i < m; i++) {
+                    result[i] = [];
+                    for (let j = 0; j < p; j++) {
+                        let sum = 0;
+                        for (let k = 0; k < n; k++) {
+                            sum += A[i][k] * B[k][j];
+                        }
+                        result[i][j] = sum;
+                    }
+                }
+                
+                return result;
+            },
+            
+            // Format matrix as text for download
+            formatMatrixText(matrix) {
+                if (!matrix || matrix.length === 0) return '';
+                
+                let result = '';
+                for (let i = 0; i < matrix.length; i++) {
+                    result += matrix[i].join('\t');
+                    if (i < matrix.length - 1) result += '\n';
+                }
+                
+                return result;
+            }
+        };
+        
+        // Utility functions
+        const Utils = {
+            // Show notification
+            showNotification(message, type = 'info') {
+                // Create notification element
+                const notification = document.createElement('div');
+                notification.className = `fixed top-20 right-6 p-4 rounded-lg z-50 ${
+                    type === 'error' ? 'bg-red-500' : 
+                    type === 'success' ? 'bg-green-500' : 'bg-blue-500'
+                } text-white shadow-lg`;
+                notification.textContent = message;
+                
+                // Add to page
+                document.body.appendChild(notification);
+                
+                // Animate in
+                anime({
+                    targets: notification,
+                    translateX: [100, 0],
+                    opacity: [0, 1],
+                    duration: 500,
+                    easing: 'easeOutQuad'
+                });
+                
+                // Remove after delay
+                setTimeout(() => {
+                    anime({
+                        targets: notification,
+                        translateX: [0, 100],
+                        opacity: [1, 0],
+                        duration: 500,
+                        easing: 'easeInQuad',
+                        complete: () => {
+                            document.body.removeChild(notification);
+                        }
+                    });
+                }, 3000);
+            }
+        };
+        
+        let calculationProcess = [];
+        
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', () => {
+            createParticles();
+            initializePage();
+            bindEvents();
+        });
+        
+        function createParticles() {
+            const particleContainer = document.getElementById('particles');
+            const particleCount = 20;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 6 + 's';
+                particle.style.animationDuration = (Math.random() * 4 + 4) + 's';
+                
+                const colors = ['#00CCFF', '#00FFC6', '#6C00FF'];
+                particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+                
+                particleContainer.appendChild(particle);
+            }
+        }
+        
+        function initializePage() {
+            // Animate page elements
+            anime.timeline()
+                .add({
+                    targets: 'h1',
+                    translateY: [50, 0],
+                    opacity: [0, 1],
+                    duration: 800,
+                    easing: 'easeOutQuad'
+                })
+                .add({
+                    targets: '.code-container, .input-container',
+                    translateY: [30, 0],
+                    opacity: [0, 1],
+                    duration: 600,
+                    delay: anime.stagger(200),
+                    easing: 'easeOutQuad'
+                }, '-=400');
+        }
+        
+        function bindEvents() {
+            const calculateBtn = document.getElementById('calculateBtn');
+            const continueBtn = document.getElementById('continueBtn');
+            const directoryBtn = document.getElementById('directoryBtn');
+            const processBtn = document.getElementById('processBtn');
+            const downloadBtn = document.getElementById('downloadBtn');
+            
+            calculateBtn.addEventListener('click', calculateInverse);
+            continueBtn.addEventListener('click', clearInputs);
+            directoryBtn.addEventListener('click', () => window.location.href = 'directory.html');
+            processBtn.addEventListener('click', showProcess);
+            downloadBtn.addEventListener('click', downloadProcess);
+            
+            // Real-time validation
+            document.getElementById('matrixInput').addEventListener('input', validateMatrix);
+        }
+        
+        function validateMatrix() {
+            const input = document.getElementById('matrixInput');
+            const errorDiv = document.getElementById('matrix-error');
+            
+            try {
+                if (input.value.trim()) {
+                    const matrix = ExtendedMatrixOperations.parseMatrix(input.value);
+                    if (!ExtendedMatrixOperations.isValidMatrix(matrix)) {
+                        throw new Error('Invalid matrix format');
+                    }
+                    if (matrix.length !== matrix[0].length) {
+                        throw new Error('Matrix must be square for inverse calculation');
+                    }
+                }
+                input.classList.remove('error');
+                errorDiv.classList.add('hidden');
+                return true;
+            } catch (error) {
+                input.classList.add('error');
+                errorDiv.textContent = error.message;
+                errorDiv.classList.remove('hidden');
+                return false;
+            }
+        }
+        
+        function calculateInverse() {
+            const matrixInput = document.getElementById('matrixInput');
+            
+            if (!validateMatrix()) {
+                Utils.showNotification('Please fix matrix format errors', 'error');
+                return;
+            }
+            
+            if (!matrixInput.value.trim()) {
+                Utils.showNotification('Please enter a matrix', 'error');
+                return;
+            }
+            
+            try {
+                const matrix = ExtendedMatrixOperations.parseMatrix(matrixInput.value);
+                
+                // Clear previous errors
+                matrixInput.classList.remove('error');
+                document.getElementById('matrix-error').classList.add('hidden');
+                
+                // Check if square
+                if (matrix.length !== matrix[0].length) {
+                    Utils.showNotification('Matrix must be square for inverse calculation', 'error');
+                    matrixInput.classList.add('error');
+                    return;
+                }
+                
+                // Perform calculation with process tracking
+                calculationProcess = [];
+                const inverse = gaussJordanInverseWithSteps(matrix);
+                
+                // Display result
+                displayResult(matrix, inverse);
+                
+                // Show success notification
+                Utils.showNotification('Inverse calculated successfully!', 'success');
+                
+            } catch (error) {
+                Utils.showNotification(error.message, 'error');
+            }
+        }
+        
+        function gaussJordanInverseWithSteps(A) {
+            const n = A.length;
+            
+            calculationProcess.push({
+                type: 'info',
+                content: {
+                    zh: `输入矩阵 A (${n}×${n}):`,
+                    en: `Input Matrix A (${n}×${n}):`
+                }
+            });
+            
+            calculationProcess.push({
+                type: 'matrix',
+                matrix: A
+            });
+            
+            // Create augmented matrix [A|I]
+            let aug = ExtendedMatrixOperations.createAugmentedMatrix(A);
+            
+            calculationProcess.push({
+                type: 'info',
+                content: {
+                    zh: '初始增广矩阵 [A|I]:',
+                    en: 'Initial augmented matrix [A|I]:'
+                }
+            });
+            
+            calculationProcess.push({
+                type: 'matrix',
+                matrix: aug
+            });
+            
+            // Gauss-Jordan elimination
+            for (let i = 0; i < n; i++) {
+                calculationProcess.push({
+                    type: 'info',
+                    content: {
+                        zh: `步骤 ${i + 1}: 处理第 ${i + 1} 列`,
+                        en: `Step ${i + 1}: Processing column ${i + 1}`
+                    }
+                });
+                
+                // Pivot selection
+                let pivot = i;
+                for (let j = i + 1; j < n; j++) {
+                    if (Math.abs(aug[j][i]) > Math.abs(aug[pivot][i])) {
+                        pivot = j;
+                    }
+                }
+                
+                // Check for singularity
+                if (Math.abs(aug[pivot][i]) < 1e-10) {
+                    throw new Error('Matrix is singular and cannot be inverted');
+                }
+                
+                // Row swap if needed
+                if (pivot !== i) {
+                    ExtendedMatrixOperations.swapRows(aug, i, pivot);
+                    calculationProcess.push({
+                        type: 'info',
+                        content: {
+                            zh: `交换行 ${i + 1} 和 ${pivot + 1}`,
+                            en: `Swapped rows ${i + 1} and ${pivot + 1}`
+                        }
+                    });
+                    calculationProcess.push({
+                        type: 'matrix',
+                        matrix: aug
+                    });
+                }
+                
+                // Normalize pivot row
+                const pivotVal = aug[i][i];
+                for (let j = i; j < 2 * n; j++) {
+                    aug[i][j] /= pivotVal;
+                }
+                
+                calculationProcess.push({
+                    type: 'info',
+                    content: {
+                        zh: `归一化行 ${i + 1} (除以 ${pivotVal.toFixed(4)}):`,
+                        en: `Normalized row ${i + 1} (divided by ${pivotVal.toFixed(4)}):`
+                    }
+                });
+                
+                calculationProcess.push({
+                    type: 'matrix',
+                    matrix: aug
+                });
+                
+                // Eliminate other rows
+                calculationProcess.push({
+                    type: 'info',
+                    content: {
+                        zh: `消去第 ${i + 1} 列的其他行:`,
+                        en: `Eliminating other rows in column ${i + 1}:`
+                    }
+                });
+                
+                for (let j = 0; j < n; j++) {
+                    if (j !== i) {
+                        const factor = aug[j][i];
+                        for (let k = i; k < 2 * n; k++) {
+                            aug[j][k] -= factor * aug[i][k];
+                        }
+                        calculationProcess.push({
+                            type: 'calculation',
+                            content: {
+                                zh: `行 ${j + 1} -= ${factor.toFixed(4)} × 行 ${i + 1}`,
+                                en: `Row ${j + 1} -= ${factor.toFixed(4)} × Row ${i + 1}`
+                            }
+                        });
+                    }
+                }
+                
+                calculationProcess.push({
+                    type: 'info',
+                    content: {
+                        zh: `第 ${i + 1} 列消去后:`,
+                        en: `After elimination in column ${i + 1}:`
+                    }
+                });
+                
+                calculationProcess.push({
+                    type: 'matrix',
+                    matrix: aug
+                });
+            }
+            
+            // Extract inverse
+            const inverse = ExtendedMatrixOperations.extractRightHalf(aug);
+            
+            calculationProcess.push({
+                type: 'info',
+                content: {
+                    zh: '最终结果 [I|A⁻¹]:',
+                    en: 'Final result [I|A⁻¹]:'
+                }
+            });
+            
+            calculationProcess.push({
+                type: 'matrix',
+                matrix: aug
+            });
+            
+            calculationProcess.push({
+                type: 'info',
+                content: {
+                    zh: '逆矩阵 A⁻¹:',
+                    en: 'Inverse matrix A⁻¹:'
+                }
+            });
+            
+            calculationProcess.push({
+                type: 'matrix',
+                matrix: inverse
+            });
+            
+            return inverse;
+        }
+        
+        function displayResult(matrix, inverse) {
+            const resultsSection = document.getElementById('resultsSection');
+            const resultMatrix = document.getElementById('resultMatrix');
+            const verificationResult = document.getElementById('verificationResult');
+            const verificationStatus = document.getElementById('verificationStatus');
+            
+            // Clear previous result
+            resultMatrix.innerHTML = '';
+            verificationResult.innerHTML = '';
+            verificationStatus.innerHTML = '';
+            
+            // Add formatted matrix
+            const matrixElement = ExtendedMatrixOperations.formatMatrix(inverse);
+            resultMatrix.appendChild(matrixElement);
+            
+            // Verification
+            try {
+                const product = ExtendedMatrixOperations.multiply(matrix, inverse);
+                const productElement = ExtendedMatrixOperations.formatMatrix(product);
+                verificationResult.appendChild(productElement);
+                
+                // Check if product is close to identity matrix
+                const n = matrix.length;
+                let maxError = 0;
+                let isIdentity = true;
+                
+                for (let i = 0; i < n; i++) {
+                    for (let j = 0; j < n; j++) {
+                        const expected = (i === j) ? 1 : 0;
+                        const error = Math.abs(product[i][j] - expected);
+                        if (error > maxError) maxError = error;
+                        if (error > 1e-6) isIdentity = false;
+                    }
+                }
+                
+                const statusDiv = document.createElement('div');
+                statusDiv.className = 'bilingual';
+                
+                const zhStatus = document.createElement('div');
+                zhStatus.className = 'zh';
+                zhStatus.innerHTML = isIdentity ? 
+                    `✓ 验证成功! A × A⁻¹ ≈ I (最大误差: ${maxError.toExponential(2)})` :
+                    `✗ 验证失败! 最大误差: ${maxError.toExponential(2)}`;
+                zhStatus.style.color = isIdentity ? '#00FFC6' : '#FF0066';
+                
+                const enStatus = document.createElement('div');
+                enStatus.className = 'en';
+                enStatus.innerHTML = isIdentity ? 
+                    `✓ Verification successful! A × A⁻¹ ≈ I (max error: ${maxError.toExponential(2)})` :
+                    `✗ Verification failed! Max error: ${maxError.toExponential(2)}`;
+                enStatus.style.color = isIdentity ? '#00FFC6' : '#FF0066';
+                
+                statusDiv.appendChild(zhStatus);
+                statusDiv.appendChild(enStatus);
+                verificationStatus.appendChild(statusDiv);
+            } catch (error) {
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'bilingual';
+                
+                const zhError = document.createElement('div');
+                zhError.className = 'zh';
+                zhError.textContent = `验证错误: ${error.message}`;
+                zhError.style.color = '#FF0066';
+                
+                const enError = document.createElement('div');
+                enError.className = 'en';
+                enError.textContent = `Verification error: ${error.message}`;
+                enError.style.color = '#FF0066';
+                
+                errorDiv.appendChild(zhError);
+                errorDiv.appendChild(enError);
+                verificationStatus.appendChild(errorDiv);
+            }
+            
+            resultsSection.classList.remove('hidden');
+            
+            // Animate result appearance
+            anime({
+                targets: resultsSection,
+                opacity: [0, 1],
+                translateY: [30, 0],
+                duration: 600,
+                easing: 'easeOutQuad'
+            });
+        }
+        
+        function clearInputs() {
+            document.getElementById('matrixInput').value = '';
+            document.getElementById('resultsSection').classList.add('hidden');
+            document.getElementById('processSection').classList.add('hidden');
+            calculationProcess = [];
+        }
+        
+        function showProcess() {
+            const processSection = document.getElementById('processSection');
+            const processSteps = document.getElementById('processSteps');
+            
+            processSteps.innerHTML = '';
+            
+            calculationProcess.forEach((step, index) => {
+                const stepDiv = document.createElement('div');
+                stepDiv.className = 'calculation-step';
+                
+                if (step.type === 'info') {
+                    const infoDiv = document.createElement('div');
+                    infoDiv.className = 'bilingual';
+                    
+                    const zhDiv = document.createElement('div');
+                    zhDiv.className = 'zh';
+                    zhDiv.textContent = step.content.zh;
+                    
+                    const enDiv = document.createElement('div');
+                    enDiv.className = 'en';
+                    enDiv.textContent = step.content.en;
+                    
+                    infoDiv.appendChild(zhDiv);
+                    infoDiv.appendChild(enDiv);
+                    stepDiv.appendChild(infoDiv);
+                } 
+                else if (step.type === 'matrix') {
+                    const matrixDiv = document.createElement('div');
+                    matrixDiv.appendChild(ExtendedMatrixOperations.formatMatrix(step.matrix));
+                    stepDiv.appendChild(matrixDiv);
+                }
+                else if (step.type === 'calculation') {
+                    const calcDiv = document.createElement('div');
+                    calcDiv.className = 'bilingual';
+                    
+                    const zhDiv = document.createElement('div');
+                    zhDiv.className = 'zh';
+                    zhDiv.textContent = step.content.zh;
+                    
+                    const enDiv = document.createElement('div');
+                    enDiv.className = 'en';
+                    enDiv.textContent = step.content.en;
+                    
+                    calcDiv.appendChild(zhDiv);
+                    calcDiv.appendChild(enDiv);
+                    stepDiv.appendChild(calcDiv);
+                }
+                
+                processSteps.appendChild(stepDiv);
+            });
+            
+            processSection.classList.remove('hidden');
+            
+            // Animate process appearance
+            anime({
+                targets: processSection,
+                opacity: [0, 1],
+                translateY: [30, 0],
+                duration: 600,
+                easing: 'easeOutQuad'
+            });
+        }
+        
+        function downloadProcess() {
+            let content = '';
+            
+            calculationProcess.forEach(step => {
+                if (step.type === 'info') {
+                    content += step.content.en + '\n';
+                } 
+                else if (step.type === 'matrix') {
+                    content += ExtendedMatrixOperations.formatMatrixText(step.matrix) + '\n\n';
+                }
+                else if (step.type === 'calculation') {
+                    content += step.content.en + '\n';
+                }
+            });
+            
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'GaussJordan_Inverse_Calculation_Process.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            Utils.showNotification('Calculation process downloaded successfully!', 'success');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,1488 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quadratic Form Standard Form - Linear Algebra Code World</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            --neon-blue: #00CCFF;
+            --neon-purple: #6C00FF;
+            --fluorescent-green: #00FFC6;
+            --deep-space: #0A0A14;
+            --holographic-silver: #C0C0C0;
+            --neon-red: #FF0066;
+            --electric-blue: #0099FF;
+        }
+
+        body {
+            font-family: 'Exo 2', sans-serif;
+            background: var(--deep-space);
+            overflow-x: hidden;
+        }
+
+        .orbitron {
+            font-family: 'Orbitron', monospace;
+        }
+
+        .cosmic-bg {
+            background: linear-gradient(135deg, var(--deep-space) 0%, #1a1a2e 50%, #16213e 100%);
+            position: relative;
+        }
+
+        .holographic-grid {
+            background-image:
+                linear-gradient(rgba(0, 204, 255, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 204, 255, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: gridMove 20s linear infinite;
+        }
+
+        @keyframes gridMove {
+            0% {
+                background-position: 0 0;
+            }
+
+            100% {
+                background-position: 50px 50px;
+            }
+        }
+
+        .nav-blur {
+            backdrop-filter: blur(20px);
+            background: rgba(10, 10, 20, 0.8);
+        }
+
+        .code-container {
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 204, 255, 0.3);
+            border-radius: 10px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .input-container {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .matrix-input {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(0, 204, 255, 0.3);
+            color: white;
+            font-family: 'Courier New', monospace;
+            resize: vertical;
+        }
+
+        .matrix-input:focus {
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 10px rgba(0, 204, 255, 0.3);
+            outline: none;
+        }
+
+        .matrix-input.error {
+            border-color: var(--neon-red);
+            box-shadow: 0 0 10px rgba(255, 0, 102, 0.3);
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-5px);
+            }
+
+            75% {
+                transform: translateX(5px);
+            }
+        }
+
+        .result-container {
+            background: rgba(0, 255, 198, 0.1);
+            border: 1px solid rgba(0, 255, 198, 0.3);
+            border-radius: 10px;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from {
+                box-shadow: 0 0 10px rgba(0, 255, 198, 0.3);
+            }
+
+            to {
+                box-shadow: 0 0 20px rgba(0, 255, 198, 0.6);
+            }
+        }
+
+        .liquid-metal {
+            background: linear-gradient(45deg, #2a2a3e, #3a3a4e, #2a2a3e);
+            background-size: 400% 400%;
+            animation: liquidFlow 8s ease-in-out infinite;
+        }
+
+        @keyframes liquidFlow {
+
+            0%,
+            100% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+        }
+
+        .electromagnetic-pulse {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .electromagnetic-pulse::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: radial-gradient(circle, var(--fluorescent-green), transparent);
+            transform: translate(-50%, -50%);
+            transition: all 0.6s ease;
+            border-radius: 50%;
+        }
+
+        .electromagnetic-pulse:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .particle-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: var(--neon-blue);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0px) rotate(0deg);
+                opacity: 0;
+            }
+
+            50% {
+                transform: translateY(-100px) rotate(180deg);
+                opacity: 1;
+            }
+        }
+
+        .syntax-highlight .keyword {
+            color: #ff79c6;
+        }
+
+        .syntax-highlight .type {
+            color: #8be9fd;
+        }
+
+        .syntax-highlight .function {
+            color: #50fa7b;
+        }
+
+        .syntax-highlight .comment {
+            color: #6272a4;
+        }
+
+        .syntax-highlight .string {
+            color: #f1fa8c;
+        }
+
+        .syntax-highlight .number {
+            color: #bd93f9;
+        }
+
+        .breadcrumb {
+            color: var(--holographic-silver);
+            font-size: 14px;
+        }
+
+        .breadcrumb .current {
+            color: var(--neon-blue);
+        }
+
+        .option-button {
+            background: rgba(0, 204, 255, 0.1);
+            border: 1px solid rgba(0, 204, 255, 0.3);
+            color: var(--neon-blue);
+            transition: all 0.3s ease;
+        }
+
+        .option-button:hover {
+            background: rgba(0, 204, 255, 0.2);
+            box-shadow: 0 0 15px rgba(0, 204, 255, 0.4);
+        }
+
+        .process-step {
+            background: rgba(255, 255, 255, 0.05);
+            border-left: 3px solid var(--fluorescent-green);
+            margin-bottom: 15px;
+            padding: 15px;
+            border-radius: 5px;
+        }
+
+        .process-step.highlight {
+            background: rgba(0, 255, 198, 0.1);
+            border-left-color: var(--fluorescent-green);
+            box-shadow: 0 0 10px rgba(0, 255, 198, 0.2);
+        }
+
+        .step-matrix {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(0, 204, 255, 0.3);
+            border-radius: 5px;
+            padding: 10px;
+            margin-top: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+
+        /* 新增样式：中英双行文 */
+        .bilingual {
+            line-height: 1.6;
+        }
+
+        .bilingual .en {
+            color: var(--holographic-silver);
+            font-size: 0.9em;
+        }
+
+        .bilingual .zh {
+            color: white;
+            font-size: 1em;
+        }
+
+        /* 新增样式：矩阵显示 */
+        .matrix-display {
+            display: inline-block;
+            padding: 10px;
+            margin: 5px 0;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
+            border: 1px solid rgba(0, 204, 255, 0.2);
+        }
+
+        .matrix-row {
+            display: flex;
+            justify-content: center;
+        }
+
+        .matrix-cell {
+            padding: 5px 10px;
+            text-align: center;
+            min-width: 40px;
+            font-family: 'Courier New', monospace;
+            color: white !important;
+            /* 确保矩阵单元格文字为白色 */
+        }
+
+        .matrix-bracket {
+            font-size: 1.5em;
+            font-weight: bold;
+            padding: 0 5px;
+            display: flex;
+            align-items: center;
+            color: white !important;
+            /* 确保矩阵括号也是白色 */
+        }
+
+        .calculation-step {
+            margin: 10px 0;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 5px;
+            color: white;
+            /* 确保计算过程中的文字也是白色 */
+        }
+
+        .dimension-info {
+            color: var(--neon-blue);
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        .inverse-result {
+            color: white !important;
+            /* 确保逆矩阵结果文字为白色 */
+            font-size: 1.3em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .verification-text {
+            color: white !important;
+            /* 确保验证文字为白色 */
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+
+        .augmented-matrix {
+            border-left: 3px solid var(--neon-purple);
+            padding-left: 10px;
+            margin: 10px 0;
+        }
+
+        .standard-form {
+            color: white !important;
+            font-size: 1.2em;
+            font-weight: bold;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+
+<body class="cosmic-bg min-h-screen">
+    <!-- Particle Background -->
+    <div class="particle-container" id="particles"></div>
+
+    <!-- Holographic Grid -->
+    <div class="holographic-grid fixed inset-0 opacity-30"></div>
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 nav-blur border-b border-opacity-20 border-blue-400">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="orbitron text-xl font-bold text-blue-400">
+                    <div class="bilingual">
+                        <div class="zh">二次型标准型</div>
+                        <div class="en">Quadratic Form Standard Form</div>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-6">
+                    <div class="breadcrumb">
+                        <a href="index.html" class="hover:text-blue-400">Home</a> →
+                        <a href="directory.html" class="hover:text-blue-400">Directory</a> →
+                        <span class="current">
+                            <div class="bilingual">
+                                <div class="zh">二次型标准型</div>
+                                <div class="en">Quadratic Form Standard Form</div>
+                            </div>
+                        </span>
+                    </div>
+                    <button class="px-6 py-2 liquid-metal text-white rounded-full electromagnetic-pulse"
+                        onclick="window.location.href='directory.html'">
+                        <div class="bilingual">
+                            <div class="zh">← 目录</div>
+                            <div class="en">← Directory</div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="pt-24 pb-16">
+        <div class="container mx-auto px-6">
+            <!-- Header -->
+            <div class="text-center mb-12">
+                <h1 class="orbitron text-5xl md:text-6xl font-black mb-6">
+                    <span class="bg-gradient-to-r from-blue-400 to-purple-600 bg-clip-text text-transparent">
+                        <div class="bilingual">
+                            <div class="zh">二次型</div>
+                            <div class="en">Quadratic Form</div>
+                        </div>
+                    </span>
+                    <span class="bg-gradient-to-r from-green-400 to-blue-400 bg-clip-text text-transparent">
+                        <div class="bilingual">
+                            <div class="zh">标准型</div>
+                            <div class="en">Standard Form</div>
+                        </div>
+                    </span>
+                </h1>
+                <p class="text-xl text-gray-300 max-w-3xl mx-auto bilingual">
+                    <span class="zh">使用合同变换将二次型化为标准型。应用消元、置换和创造平方项矩阵来对角化二次型，提供完整的逐步可视化。</span>
+                    <span class="en">Transform quadratic forms to standard form using congruent transformations. Apply
+                        elimination, permutation, and square creation matrices to diagonalize the quadratic form with
+                        complete step-by-step visualization.</span>
+                </p>
+            </div>
+
+            <!-- Main Layout -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-7xl mx-auto">
+                <!-- Code Display Section -->
+                <div class="space-y-6">
+                    <div class="code-container p-6">
+                        <h3 class="orbitron text-xl font-bold mb-4 text-blue-400 bilingual">
+                            <div class="zh">核心实现</div>
+                            <div class="en">Core Implementation</div>
+                        </h3>
+                        <pre class="text-sm text-gray-300 overflow-x-auto"><code class="syntax-highlight">
+<span class="type">QuadraticFormResult</span> <span class="function">quadraticFormStandard</span>(<span class="keyword">const</span> <span class="type">Matrix</span>& A) {
+    <span class="keyword">const</span> <span class="type">int</span> n = A.rows;
+    <span class="type">Matrix</span> currentA = A;
+    <span class="type">Matrix</span> B(n, n); <span class="comment">// Transformation matrix</span>
+    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i < n; i++) B.data[i][i] = <span class="number">1</span>;
+    
+    <span class="comment">// Congruent transformation process</span>
+    <span class="keyword">for</span> (<span class="type">int</span> k = <span class="number">0</span>; k < n; k++) {
+        <span class="comment">// Case 1: a_kk ≠ 0</span>
+        <span class="keyword">if</span> (<span class="function">abs</span>(currentA.data[k][k]) > <span class="number">1e-10</span>) {
+            <span class="type">Matrix</span> C = <span class="function">createEliminationMatrix</span>(currentA, k);
+            currentA = <span class="function">congruentTransform</span>(currentA, C);
+            B = B * C;
+        }
+        <span class="comment">// Case 2: Need to create square term</span>
+        <span class="keyword">else</span> {
+            <span class="comment">// Find non-zero element to create square</span>
+            <span class="keyword">bool</span> found = <span class="keyword">false</span>;
+            <span class="keyword">for</span> (<span class="type">int</span> i = k+1; i < n; i++) {
+                <span class="keyword">if</span> (<span class="function">abs</span>(currentA.data[i][i]) > <span class="number">1e-10</span>) {
+                    <span class="type">Matrix</span> P = <span class="function">createPermutationMatrix</span>(n, k, i);
+                    currentA = <span class="function">congruentTransform</span>(currentA, P);
+                    B = B * P;
+                    k--; <span class="comment">// Reprocess this position</span>
+                    found = <span class="keyword">true</span>;
+                    <span class="keyword">break</span>;
+                }
+            }
+            <span class="comment">// Case 3: Create square from off-diagonal</span>
+            <span class="keyword">if</span> (!found) {
+                <span class="keyword">for</span> (<span class="type">int</span> i = k+1; i < n; i++) {
+                    <span class="keyword">for</span> (<span class="type">int</span> j = i+1; j < n; j++) {
+                        <span class="keyword">if</span> (<span class="function">abs</span>(currentA.data[i][j]) > <span class="number">1e-10</span>) {
+                            <span class="type">Matrix</span> C = <span class="function">createSquareCreationMatrix</span>(n, k, i, j);
+                            currentA = <span class="function">congruentTransform</span>(currentA, C);
+                            B = B * C;
+                            k--; <span class="comment">// Reprocess this position</span>
+                            found = <span class="keyword">true</span>;
+                            <span class="keyword">break</span>;
+                        }
+                    }
+                    <span class="keyword">if</span> (found) <span class="keyword">break</span>;
+                }
+            }
+        }
+    }
+    
+    <span class="keyword">return</span> {currentA, B, <span class="function">extractCoefficients</span>(currentA)};
+}</code></pre>
+                    </div>
+
+                    <!-- Algorithm Explanation -->
+                    <div class="input-container p-6">
+                        <h3 class="orbitron text-xl font-bold mb-4 text-green-400 bilingual">
+                            <div class="zh">算法步骤</div>
+                            <div class="en">Algorithm Steps</div>
+                        </h3>
+                        <div class="space-y-3">
+                            <div class="process-step bilingual">
+                                <div class="zh"><strong>1. 矩阵设置：</strong>初始化变换矩阵 B 为单位矩阵</div>
+                                <div class="en"><strong>1. Matrix Setup:</strong> Initialize transformation matrix B as
+                                    identity</div>
+                            </div>
+                            <div class="process-step bilingual">
+                                <div class="zh"><strong>2. 对角线处理：</strong>对每个对角线位置 k 进行处理</div>
+                                <div class="en"><strong>2. Diagonal Processing:</strong> For each diagonal position k
+                                </div>
+                            </div>
+                            <div class="process-step highlight bilingual">
+                                <div class="zh"><strong>3. 情况1 - 消元：</strong>如果 a_kk ≠ 0，使用 C_k 消去交叉项</div>
+                                <div class="en"><strong>3. Case 1 - Elimination:</strong> If a_kk ≠ 0, eliminate cross
+                                    terms using C_k</div>
+                            </div>
+                            <div class="process-step bilingual">
+                                <div class="zh"><strong>4. 情况2 - 置换：</strong>如果 a_kk = 0 但 a_ii ≠ 0 (i>k)，交换行</div>
+                                <div class="en"><strong>4. Case 2 - Permutation:</strong> If a_kk = 0 but a_ii ≠ 0
+                                    (i>k), swap rows</div>
+                            </div>
+                            <div class="process-step bilingual">
+                                <div class="zh"><strong>5. 情况3 - 创造平方项：</strong>如果所有对角元=0但非对角元≠0，创造平方项</div>
+                                <div class="en"><strong>5. Case 3 - Square Creation:</strong> If all diagonal=0 but
+                                    off-diagonal≠0, create square term</div>
+                            </div>
+                            <div class="process-step bilingual">
+                                <div class="zh"><strong>6. 结果：</strong>提取对角线系数得到标准型</div>
+                                <div class="en"><strong>6. Result:</strong> Extract diagonal coefficients for standard
+                                    form</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Interactive Input Section -->
+                <div class="space-y-6">
+                    <div class="input-container p-6">
+                        <h3 class="orbitron text-xl font-bold mb-6 text-green-400 bilingual">
+                            <div class="zh">让我们解决问题</div>
+                            <div class="en">Let's Solve the Problem</div>
+                        </h3>
+
+                        <!-- Matrix Input -->
+                        <div class="mb-6">
+                            <label class="block text-blue-400 font-semibold mb-2 bilingual">
+                                <div class="zh">对称矩阵 A</div>
+                                <div class="en">Symmetric Matrix A</div>
+                            </label>
+                            <textarea id="matrixInput" class="matrix-input w-full h-40 p-3 rounded"
+                                placeholder="Enter symmetric matrix (rows separated by new lines, elements by spaces)&#10;Example:&#10;1 2 3&#10;2 4 5&#10;3 5 6"></textarea>
+                            <div id="matrix-error" class="text-red-400 text-sm mt-2 hidden"></div>
+                        </div>
+
+                        <!-- Calculate Button -->
+                        <button id="calculateBtn"
+                            class="w-full py-3 liquid-metal text-white rounded-lg electromagnetic-pulse orbitron font-bold">
+                            <div class="bilingual">
+                                <div class="zh">变换为标准型</div>
+                                <div class="en">Transform to Standard Form</div>
+                            </div>
+                        </button>
+                    </div>
+
+                    <!-- Results Section -->
+                    <div id="resultsSection" class="hidden">
+                        <div class="result-container p-6">
+                            <h3 class="orbitron text-xl font-bold mb-4 text-green-400 bilingual">
+                                <div class="zh">结果</div>
+                                <div class="en">Result</div>
+                            </h3>
+                            <div id="standardForm" class="standard-form bilingual">
+                                <div class="zh">标准型:</div>
+                                <div class="en">Standard Form:</div>
+                            </div>
+                            <div id="standardFormExpression" class="standard-form mb-4"></div>
+
+                            <div class="bilingual mb-4">
+                                <div class="zh">原始矩阵 A:</div>
+                                <div class="en">Original Matrix A:</div>
+                            </div>
+                            <div id="resultMatrix" class="mb-4"></div>
+
+                            <!-- Intermediate Results -->
+                            <div id="intermediateResults" class="space-y-4">
+                                <div id="transformMatrix" class="hidden">
+                                    <h4 class="text-blue-400 font-semibold bilingual">
+                                        <div class="zh">变换矩阵 C (X = CY):</div>
+                                        <div class="en">Transformation Matrix C (X = CY):</div>
+                                    </h4>
+                                    <div class="mt-2"></div>
+                                </div>
+                                <div id="diagonalMatrix" class="hidden">
+                                    <h4 class="text-blue-400 font-semibold bilingual">
+                                        <div class="zh">对角矩阵:</div>
+                                        <div class="en">Diagonal Matrix:</div>
+                                    </h4>
+                                    <div class="mt-2"></div>
+                                </div>
+                            </div>
+
+                            <!-- Verification Results -->
+                            <div id="verification" class="space-y-4 mt-4">
+                                <h4 class="text-blue-400 font-semibold bilingual">
+                                    <div class="zh">验证: Cᵀ × A × C</div>
+                                    <div class="en">Verification: Cᵀ × A × C</div>
+                                </h4>
+                                <div id="verificationResult" class="mt-2"></div>
+                                <div id="verificationStatus" class="verification-text"></div>
+                            </div>
+
+                            <!-- Options -->
+                            <div class="mt-6 space-y-3">
+                                <h4 class="text-blue-400 font-semibold bilingual">
+                                    <div class="zh">您想接下来做什么？</div>
+                                    <div class="en">What would you like to do next?</div>
+                                </h4>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                    <button id="continueBtn" class="option-button px-4 py-2 rounded text-sm bilingual">
+                                        <div class="zh">继续</div>
+                                        <div class="en">Continue</div>
+                                    </button>
+                                    <button id="directoryBtn" class="option-button px-4 py-2 rounded text-sm bilingual">
+                                        <div class="zh">目录</div>
+                                        <div class="en">Directory</div>
+                                    </button>
+                                    <button id="processBtn" class="option-button px-4 py-2 rounded text-sm bilingual">
+                                        <div class="zh">查看过程</div>
+                                        <div class="en">View Process</div>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Process Visualization -->
+                    <div id="processSection" class="hidden">
+                        <div class="input-container p-6">
+                            <h3 class="orbitron text-xl font-bold mb-4 text-blue-400 bilingual">
+                                <div class="zh">计算过程</div>
+                                <div class="en">Calculation Process</div>
+                            </h3>
+                            <div id="processSteps" class="space-y-3"></div>
+                            <div class="mt-4">
+                                <button id="downloadBtn"
+                                    class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors bilingual">
+                                    <div class="zh">下载过程</div>
+                                    <div class="en">Download Process</div>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="py-12 border-t border-gray-800">
+        <div class="container mx-auto px-6 text-center">
+            <div class="orbitron text-lg text-blue-400 mb-4 bilingual">
+                <div class="zh">© 2025 czz的线性代数代码世界</div>
+                <div class="en">© 2025 czz's Linear Algebra Code World</div>
+            </div>
+            <p class="text-gray-400 bilingual">
+                <span class="zh">数学与未来相遇的地方</span>
+                <span class="en">Where mathematics meets the future</span>
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // Matrix Operations
+        const MatrixOperations = {
+            // Parse matrix from string input
+            parseMatrix: function (input) {
+                if (!input.trim()) {
+                    throw new Error('Matrix input is empty');
+                }
+
+                const rows = input.trim().split('\n');
+                const matrix = [];
+
+                for (let i = 0; i < rows.length; i++) {
+                    const row = rows[i].trim().split(/\s+/);
+
+                    if (row.length === 0 || (row.length === 1 && row[0] === '')) {
+                        continue; // Skip empty rows
+                    }
+
+                    const numRow = [];
+                    for (let j = 0; j < row.length; j++) {
+                        const num = parseFloat(row[j]);
+                        if (isNaN(num)) {
+                            throw new Error(`Invalid number at row ${i + 1}, column ${j + 1}: "${row[j]}"`);
+                        }
+                        numRow.push(num);
+                    }
+
+                    matrix.push(numRow);
+                }
+
+                if (matrix.length === 0) {
+                    throw new Error('Matrix has no valid rows');
+                }
+
+                return matrix;
+            },
+
+            // Check if matrix is valid (all rows have same length)
+            isValidMatrix: function (matrix) {
+                if (matrix.length === 0) return false;
+
+                const cols = matrix[0].length;
+                for (let i = 1; i < matrix.length; i++) {
+                    if (matrix[i].length !== cols) {
+                        return false;
+                    }
+                }
+
+                return true;
+            },
+
+            // Matrix multiplication
+            multiply: function (A, B) {
+                const rowsA = A.length, colsA = A[0].length;
+                const rowsB = B.length, colsB = B[0].length;
+
+                if (colsA !== rowsB) {
+                    throw new Error('Matrix dimensions do not match for multiplication');
+                }
+
+                const result = [];
+                for (let i = 0; i < rowsA; i++) {
+                    result[i] = [];
+                    for (let j = 0; j < colsB; j++) {
+                        result[i][j] = 0;
+                        for (let k = 0; k < colsA; k++) {
+                            result[i][j] += A[i][k] * B[k][j];
+                        }
+                    }
+                }
+
+                return result;
+            },
+
+            // Matrix transpose
+            transpose: function (A) {
+                const rows = A.length, cols = A[0].length;
+                const result = [];
+
+                for (let j = 0; j < cols; j++) {
+                    result[j] = [];
+                    for (let i = 0; i < rows; i++) {
+                        result[j][i] = A[i][j];
+                    }
+                }
+
+                return result;
+            },
+
+            // Format matrix for display with proper brackets
+            formatMatrix: function (matrix) {
+                if (!matrix || matrix.length === 0) return '';
+
+                const container = document.createElement('div');
+                container.className = 'matrix-display';
+
+                const bracketLeft = document.createElement('div');
+                bracketLeft.className = 'matrix-bracket';
+                bracketLeft.textContent = '[';
+                container.appendChild(bracketLeft);
+
+                const matrixContent = document.createElement('div');
+
+                for (let i = 0; i < matrix.length; i++) {
+                    const rowDiv = document.createElement('div');
+                    rowDiv.className = 'matrix-row';
+
+                    for (let j = 0; j < matrix[i].length; j++) {
+                        const cell = document.createElement('div');
+                        cell.className = 'matrix-cell';
+                        cell.textContent = Math.abs(matrix[i][j]) < 1e-10 ? '0.0000' : matrix[i][j].toFixed(4);
+                        rowDiv.appendChild(cell);
+                    }
+
+                    matrixContent.appendChild(rowDiv);
+                }
+
+                container.appendChild(matrixContent);
+
+                const bracketRight = document.createElement('div');
+                bracketRight.className = 'matrix-bracket';
+                bracketRight.textContent = ']';
+                container.appendChild(bracketRight);
+
+                return container;
+            },
+
+            // Format matrix as text for download
+            formatMatrixText: function (matrix) {
+                if (!matrix || matrix.length === 0) return '';
+
+                let result = '';
+                for (let i = 0; i < matrix.length; i++) {
+                    result += matrix[i].map(val =>
+                        Math.abs(val) < 1e-10 ? '0.0000' : val.toFixed(4)
+                    ).join('\t');
+                    if (i < matrix.length - 1) result += '\n';
+                }
+
+                return result;
+            }
+        };
+
+        // Utility functions
+        const Utils = {
+            // Show notification
+            showNotification(message, type = 'info') {
+                // Create notification element
+                const notification = document.createElement('div');
+                notification.className = `fixed top-20 right-6 p-4 rounded-lg z-50 ${type === 'error' ? 'bg-red-500' :
+                        type === 'success' ? 'bg-green-500' : 'bg-blue-500'
+                    } text-white shadow-lg`;
+                notification.textContent = message;
+
+                // Add to page
+                document.body.appendChild(notification);
+
+                // Animate in
+                anime({
+                    targets: notification,
+                    translateX: [100, 0],
+                    opacity: [0, 1],
+                    duration: 500,
+                    easing: 'easeOutQuad'
+                });
+
+                // Remove after delay
+                setTimeout(() => {
+                    anime({
+                        targets: notification,
+                        translateX: [0, 100],
+                        opacity: [1, 0],
+                        duration: 500,
+                        easing: 'easeInQuad',
+                        complete: () => {
+                            document.body.removeChild(notification);
+                        }
+                    });
+                }, 3000);
+            }
+        };
+
+        // Extended Matrix Operations for Quadratic Forms
+        const QuadraticFormOperations = {
+            ...MatrixOperations,
+
+            // Create elimination matrix for column k
+            createEliminationMatrix: function (A, k) {
+                const n = A.length;
+                const C = [];
+
+                // Initialize as identity matrix
+                for (let i = 0; i < n; i++) {
+                    C[i] = [];
+                    for (let j = 0; j < n; j++) {
+                        C[i][j] = (i === j) ? 1 : 0;
+                    }
+                }
+
+                // Set elimination coefficients
+                for (let j = k + 1; j < n; j++) {
+                    C[k][j] = -A[k][j] / A[k][k];
+                }
+
+                return C;
+            },
+
+            // Create permutation matrix to swap rows i and j
+            createPermutationMatrix: function (n, i, j) {
+                const P = [];
+
+                // Initialize as identity matrix
+                for (let r = 0; r < n; r++) {
+                    P[r] = [];
+                    for (let c = 0; c < n; c++) {
+                        P[r][c] = (r === c) ? 1 : 0;
+                    }
+                }
+
+                // Swap rows i and j
+                if (i !== j) {
+                    [P[i], P[j]] = [P[j], P[i]];
+                }
+
+                return P;
+            },
+
+            // Create matrix to create square term
+            createSquareCreationMatrix: function (n, k, i, j) {
+                const C = [];
+
+                // Initialize as identity matrix
+                for (let r = 0; r < n; r++) {
+                    C[r] = [];
+                    for (let c = 0; c < n; c++) {
+                        C[r][c] = (r === c) ? 1 : 0;
+                    }
+                }
+
+                // 修正：使用固定位置 k 和 k+1
+                C[k][k] = 1;
+                C[k][k + 1] = 1;      // 不是 C[k][j]
+                C[k + 1][k] = 1;      // 不是 C[i][k]  
+                C[k + 1][k + 1] = -1;   // 不是 C[i][j]
+
+                return C;
+            },
+
+            // Congruent transformation: C^T * A * C
+            congruentTransform: function (A, C) {
+                const CT = this.transpose(C);
+                const temp = this.multiply(CT, A);
+                return this.multiply(temp, C);
+            },
+
+            // Extract diagonal coefficients
+            extractCoefficients: function (A) {
+                const n = A.length;
+                const coeffs = [];
+
+                for (let i = 0; i < n; i++) {
+                    coeffs.push(A[i][i]);
+                }
+
+                return coeffs;
+            },
+
+            // Quadratic form standard form calculation (following C++ logic)
+            quadraticFormStandard: function (A) {
+                const n = A.length;
+                let currentA = A.map(row => [...row]); // Copy
+                let B = [];
+
+                // Initialize B as identity matrix
+                for (let i = 0; i < n; i++) {
+                    B[i] = [];
+                    for (let j = 0; j < n; j++) {
+                        B[i][j] = (i === j) ? 1 : 0;
+                    }
+                }
+
+                const transformMatrices = [];
+                const transformSteps = [];
+                const intermediateResults = [];
+                let step = 0;
+
+                // Congruent transformation process
+                for (let k = 0; k < n; k++) {
+                    // Case 1: a_kk ≠ 0
+                    if (Math.abs(currentA[k][k]) > 1e-10) {
+                        const C = this.createEliminationMatrix(currentA, k);
+
+                        transformMatrices.push(C);
+                        transformSteps.push(`C${++step} - Eliminate cross terms in row ${k + 1}`);
+                        intermediateResults.push({
+                            step: step,
+                            description: {
+                                zh: `消去第 ${k + 1} 行交叉项`,
+                                en: `Eliminate cross terms in row ${k + 1}`
+                            },
+                            matrix: C,
+                            type: 'elimination',
+                            currentA: currentA.map(row => [...row]),
+                            currentB: B.map(row => [...row])
+                        });
+
+                        currentA = this.congruentTransform(currentA, C);
+                        B = this.multiply(B, C);
+                    }
+                    // Case 2: a_kk = 0 but exists a_ii ≠ 0 (i > k)
+                    else {
+                        let found = false;
+                        for (let i = k + 1; i < n; i++) {
+                            if (Math.abs(currentA[i][i]) > 1e-10) {
+                                const P = this.createPermutationMatrix(n, k, i);
+
+                                transformMatrices.push(P);
+                                transformSteps.push(`P${++step} - Swap rows ${k + 1} and ${i + 1}`);
+                                intermediateResults.push({
+                                    step: step,
+                                    description: {
+                                        zh: `交换第 ${k + 1} 行和第 ${i + 1} 行`,
+                                        en: `Swap rows ${k + 1} and ${i + 1}`
+                                    },
+                                    matrix: P,
+                                    type: 'permutation',
+                                    currentA: currentA.map(row => [...row]),
+                                    currentB: B.map(row => [...row])
+                                });
+
+                                currentA = this.congruentTransform(currentA, P);
+                                B = this.multiply(B, P);
+
+                                found = true;
+                                k--; // Reprocess this position
+                                break;
+                            }
+                        }
+
+                        // Case 3: All diagonal elements are 0 but exists off-diagonal ≠ 0
+                        if (!found) {
+                            let foundOffDiagonal = false;
+                            for (let i = k + 1; i < n && !foundOffDiagonal; i++) {
+                                for (let j = i + 1; j < n && !foundOffDiagonal; j++) {
+                                    if (Math.abs(currentA[i][j]) > 1e-10) {
+                                        // First swap to appropriate position if needed
+                                        if (k + 1 !== i) {
+                                            const P1 = this.createPermutationMatrix(n, k + 1, i);
+                                            transformMatrices.push(P1);
+                                            transformSteps.push(`P${++step} - Prepare for square creation: swap rows ${k + 2} and ${i + 1}`);
+                                            intermediateResults.push({
+                                                step: step,
+                                                description: {
+                                                    zh: `准备创造平方项: 交换第 ${k + 2} 行和第 ${i + 1} 行`,
+                                                    en: `Prepare for square creation: swap rows ${k + 2} and ${i + 1}`
+                                                },
+                                                matrix: P1,
+                                                type: 'permutation',
+                                                currentA: currentA.map(row => [...row]),
+                                                currentB: B.map(row => [...row])
+                                            });
+
+                                            currentA = this.congruentTransform(currentA, P1);
+                                            B = this.multiply(B, P1);
+                                        }
+
+                                        // Create square term
+                                        const C = this.createSquareCreationMatrix(n, k, k + 1, j);
+                                        transformMatrices.push(C);
+                                        transformSteps.push(`C${++step} - Create square term`);
+                                        intermediateResults.push({
+                                            step: step,
+                                            description: {
+                                                zh: `创造平方项`,
+                                                en: `Create square term`
+                                            },
+                                            matrix: C,
+                                            type: 'square-creation',
+                                            currentA: currentA.map(row => [...row]),
+                                            currentB: B.map(row => [...row])
+                                        });
+
+                                        currentA = this.congruentTransform(currentA, C);
+                                        B = this.multiply(B, C);
+
+                                        foundOffDiagonal = true;
+                                        k--; // Reprocess this position
+                                        break;
+                                    }
+                                }
+                            }
+
+                            if (!foundOffDiagonal) {
+                                // All relevant elements are zero, skip
+                                transformSteps.push(`Position (${k + 1},${k + 1}) and related elements are all zero, skipping`);
+                                intermediateResults.push({
+                                    step: ++step,
+                                    description: {
+                                        zh: `位置 (${k + 1},${k + 1}) 及其相关元素全为零，跳过`,
+                                        en: `Position (${k + 1},${k + 1}) and related elements are all zero, skipping`
+                                    },
+                                    matrix: null,
+                                    type: 'skip',
+                                    currentA: currentA.map(row => [...row]),
+                                    currentB: B.map(row => [...row])
+                                });
+                            }
+                        }
+                    }
+                }
+
+                const coeffs = this.extractCoefficients(currentA);
+
+                return {
+                    standardMatrix: currentA,
+                    transformMatrix: B,
+                    coefficients: coeffs,
+                    transformMatrices: transformMatrices,
+                    transformSteps: transformSteps,
+                    intermediateResults: intermediateResults
+                };
+            }
+        };
+
+        let calculationProcess = [];
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', () => {
+            createParticles();
+            initializePage();
+            bindEvents();
+        });
+
+        function createParticles() {
+            const particleContainer = document.getElementById('particles');
+            const particleCount = 20;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 6 + 's';
+                particle.style.animationDuration = (Math.random() * 4 + 4) + 's';
+
+                const colors = ['#00CCFF', '#00FFC6', '#6C00FF'];
+                particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+
+                particleContainer.appendChild(particle);
+            }
+        }
+
+        function initializePage() {
+            // Animate page elements
+            anime.timeline()
+                .add({
+                    targets: 'h1',
+                    translateY: [50, 0],
+                    opacity: [0, 1],
+                    duration: 800,
+                    easing: 'easeOutQuad'
+                })
+                .add({
+                    targets: '.code-container, .input-container',
+                    translateY: [30, 0],
+                    opacity: [0, 1],
+                    duration: 600,
+                    delay: anime.stagger(200),
+                    easing: 'easeOutQuad'
+                }, '-=400');
+        }
+
+        function bindEvents() {
+            const calculateBtn = document.getElementById('calculateBtn');
+            const continueBtn = document.getElementById('continueBtn');
+            const directoryBtn = document.getElementById('directoryBtn');
+            const processBtn = document.getElementById('processBtn');
+            const downloadBtn = document.getElementById('downloadBtn');
+
+            calculateBtn.addEventListener('click', calculateQuadraticFormStandard);
+            continueBtn.addEventListener('click', clearInputs);
+            directoryBtn.addEventListener('click', () => window.location.href = 'directory.html');
+            processBtn.addEventListener('click', showProcess);
+            downloadBtn.addEventListener('click', downloadProcess);
+
+            // Real-time validation
+            document.getElementById('matrixInput').addEventListener('input', validateMatrix);
+        }
+
+        function validateMatrix() {
+            const input = document.getElementById('matrixInput');
+            const errorDiv = document.getElementById('matrix-error');
+
+            try {
+                if (input.value.trim()) {
+                    const matrix = MatrixOperations.parseMatrix(input.value);
+                    if (!MatrixOperations.isValidMatrix(matrix)) {
+                        throw new Error('Invalid matrix format');
+                    }
+                    if (matrix.length !== matrix[0].length) {
+                        throw new Error('Matrix must be square for quadratic form');
+                    }
+                    // Check if symmetric (within tolerance)
+                    const n = matrix.length;
+                    for (let i = 0; i < n; i++) {
+                        for (let j = i + 1; j < n; j++) {
+                            if (Math.abs(matrix[i][j] - matrix[j][i]) > 1e-10) {
+                                throw new Error('Matrix must be symmetric for quadratic form');
+                            }
+                        }
+                    }
+                }
+                input.classList.remove('error');
+                errorDiv.classList.add('hidden');
+                return true;
+            } catch (error) {
+                input.classList.add('error');
+                errorDiv.textContent = error.message;
+                errorDiv.classList.remove('hidden');
+                return false;
+            }
+        }
+
+        function calculateQuadraticFormStandard() {
+            const matrixInput = document.getElementById('matrixInput');
+
+            if (!validateMatrix()) {
+                Utils.showNotification('Please fix matrix format errors', 'error');
+                return;
+            }
+
+            if (!matrixInput.value.trim()) {
+                Utils.showNotification('Please enter a matrix', 'error');
+                return;
+            }
+
+            try {
+                const matrix = MatrixOperations.parseMatrix(matrixInput.value);
+
+                // Clear previous errors
+                matrixInput.classList.remove('error');
+                document.getElementById('matrix-error').classList.add('hidden');
+
+                // Check if square and symmetric
+                if (matrix.length !== matrix[0].length) {
+                    Utils.showNotification('Matrix must be square for quadratic form', 'error');
+                    matrixInput.classList.add('error');
+                    return;
+                }
+
+                // Check symmetry
+                const n = matrix.length;
+                for (let i = 0; i < n; i++) {
+                    for (let j = i + 1; j < n; j++) {
+                        if (Math.abs(matrix[i][j] - matrix[j][i]) > 1e-10) {
+                            Utils.showNotification('Matrix must be symmetric for quadratic form', 'error');
+                            matrixInput.classList.add('error');
+                            return;
+                        }
+                    }
+                }
+
+                // Perform calculation
+                const result = QuadraticFormOperations.quadraticFormStandard(matrix);
+
+                // Store process data
+                calculationProcess = result.intermediateResults;
+
+                // Display result
+                displayResult(matrix, result);
+
+                // Show success notification
+                Utils.showNotification('Quadratic form transformed to standard form successfully!', 'success');
+
+            } catch (error) {
+                Utils.showNotification(error.message, 'error');
+            }
+        }
+
+        function displayResult(originalMatrix, result) {
+            const resultsSection = document.getElementById('resultsSection');
+            const standardFormExpression = document.getElementById('standardFormExpression');
+            const resultMatrix = document.getElementById('resultMatrix');
+            const transformMatrix = document.getElementById('transformMatrix');
+            const diagonalMatrix = document.getElementById('diagonalMatrix');
+            const verificationResult = document.getElementById('verificationResult');
+            const verificationStatus = document.getElementById('verificationStatus');
+
+            // Clear previous results
+            resultMatrix.innerHTML = '';
+            transformMatrix.querySelector('div').innerHTML = '';
+            diagonalMatrix.querySelector('div').innerHTML = '';
+            verificationResult.innerHTML = '';
+            verificationStatus.innerHTML = '';
+
+            // Build standard form expression
+            let formText = 'f = ';
+            let firstTerm = true;
+
+            for (let i = 0; i < result.coefficients.length; i++) {
+                if (Math.abs(result.coefficients[i]) > 1e-10) {
+                    if (!firstTerm) formText += ' + ';
+                    formText += `${result.coefficients[i].toFixed(4)}·y${i + 1}²`;
+                    firstTerm = false;
+                }
+            }
+
+            if (firstTerm) {
+                formText += '0';
+            }
+
+            standardFormExpression.textContent = formText;
+
+            // Add formatted matrices
+            resultMatrix.appendChild(MatrixOperations.formatMatrix(originalMatrix));
+
+            // Show intermediate results
+            transformMatrix.querySelector('div').appendChild(MatrixOperations.formatMatrix(result.transformMatrix));
+            transformMatrix.classList.remove('hidden');
+
+            diagonalMatrix.querySelector('div').appendChild(MatrixOperations.formatMatrix(result.standardMatrix));
+            diagonalMatrix.classList.remove('hidden');
+
+            // Verification
+            try {
+                const CT = MatrixOperations.transpose(result.transformMatrix);
+                const temp1 = MatrixOperations.multiply(CT, originalMatrix);
+                const verification = MatrixOperations.multiply(temp1, result.transformMatrix);
+
+                verificationResult.appendChild(MatrixOperations.formatMatrix(verification));
+
+                // Check if verification matches diagonal matrix
+                let maxError = 0;
+                let isCorrect = true;
+
+                for (let i = 0; i < verification.length; i++) {
+                    for (let j = 0; j < verification[i].length; j++) {
+                        const expected = (i === j) ? result.standardMatrix[i][j] : 0;
+                        const error = Math.abs(verification[i][j] - expected);
+                        if (error > maxError) maxError = error;
+                        if (error > 1e-8) isCorrect = false;
+                    }
+                }
+
+                const statusDiv = document.createElement('div');
+                statusDiv.className = 'bilingual';
+
+                const zhStatus = document.createElement('div');
+                zhStatus.className = 'zh';
+                zhStatus.innerHTML = isCorrect ?
+                    `✓ 验证成功! Cᵀ × A × C 匹配对角矩阵 (最大误差: ${maxError.toExponential(2)})` :
+                    `✗ 验证失败! 最大误差: ${maxError.toExponential(2)}`;
+                zhStatus.style.color = isCorrect ? '#00FFC6' : '#FF0066';
+
+                const enStatus = document.createElement('div');
+                enStatus.className = 'en';
+                enStatus.innerHTML = isCorrect ?
+                    `✓ Verification successful! Cᵀ × A × C matches diagonal matrix (max error: ${maxError.toExponential(2)})` :
+                    `✗ Verification failed! Max error: ${maxError.toExponential(2)}`;
+                enStatus.style.color = isCorrect ? '#00FFC6' : '#FF0066';
+
+                statusDiv.appendChild(zhStatus);
+                statusDiv.appendChild(enStatus);
+                verificationStatus.appendChild(statusDiv);
+            } catch (error) {
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'bilingual';
+
+                const zhError = document.createElement('div');
+                zhError.className = 'zh';
+                zhError.textContent = `验证错误: ${error.message}`;
+                zhError.style.color = '#FF0066';
+
+                const enError = document.createElement('div');
+                enError.className = 'en';
+                enError.textContent = `Verification error: ${error.message}`;
+                enError.style.color = '#FF0066';
+
+                errorDiv.appendChild(zhError);
+                errorDiv.appendChild(enError);
+                verificationStatus.appendChild(errorDiv);
+            }
+
+            resultsSection.classList.remove('hidden');
+
+            // Animate result appearance
+            anime({
+                targets: resultsSection,
+                opacity: [0, 1],
+                translateY: [30, 0],
+                duration: 600,
+                easing: 'easeOutQuad'
+            });
+        }
+
+        function clearInputs() {
+            document.getElementById('matrixInput').value = '';
+            document.getElementById('resultsSection').classList.add('hidden');
+            document.getElementById('processSection').classList.add('hidden');
+            document.getElementById('transformMatrix').classList.add('hidden');
+            document.getElementById('diagonalMatrix').classList.add('hidden');
+            calculationProcess = [];
+        }
+
+        function showProcess() {
+            const processSection = document.getElementById('processSection');
+            const processSteps = document.getElementById('processSteps');
+
+            processSteps.innerHTML = '';
+
+            calculationProcess.forEach((stepData, index) => {
+                const stepDiv = document.createElement('div');
+                stepDiv.className = 'calculation-step';
+
+                if (stepData.type === 'info' || stepData.type === 'elimination' ||
+                    stepData.type === 'permutation' || stepData.type === 'square-creation' || stepData.type === 'skip') {
+
+                    const infoDiv = document.createElement('div');
+                    infoDiv.className = 'bilingual';
+
+                    const zhDiv = document.createElement('div');
+                    zhDiv.className = 'zh';
+                    zhDiv.innerHTML = `<strong>步骤 ${stepData.step}:</strong> ${stepData.description.zh}`;
+
+                    const enDiv = document.createElement('div');
+                    enDiv.className = 'en';
+                    enDiv.innerHTML = `<strong>Step ${stepData.step}:</strong> ${stepData.description.en}`;
+
+                    infoDiv.appendChild(zhDiv);
+                    infoDiv.appendChild(enDiv);
+                    stepDiv.appendChild(infoDiv);
+
+                    if (stepData.matrix) {
+                        const matrixDiv = document.createElement('div');
+                        matrixDiv.className = 'mt-2';
+                        matrixDiv.appendChild(MatrixOperations.formatMatrix(stepData.matrix));
+                        stepDiv.appendChild(matrixDiv);
+                    }
+
+                    if (stepData.currentA) {
+                        const currentDiv = document.createElement('div');
+                        currentDiv.className = 'mt-2 bilingual';
+
+                        const zhCurrent = document.createElement('div');
+                        zhCurrent.className = 'zh';
+                        zhCurrent.textContent = '当前矩阵 A:';
+
+                        const enCurrent = document.createElement('div');
+                        enCurrent.className = 'en';
+                        enCurrent.textContent = 'Current Matrix A:';
+
+                        currentDiv.appendChild(zhCurrent);
+                        currentDiv.appendChild(enCurrent);
+
+                        const matrixDiv = document.createElement('div');
+                        matrixDiv.className = 'mt-1';
+                        matrixDiv.appendChild(MatrixOperations.formatMatrix(stepData.currentA));
+
+                        stepDiv.appendChild(currentDiv);
+                        stepDiv.appendChild(matrixDiv);
+                    }
+                }
+
+                processSteps.appendChild(stepDiv);
+            });
+
+            processSection.classList.remove('hidden');
+
+            // Animate process appearance
+            anime({
+                targets: processSection,
+                opacity: [0, 1],
+                translateY: [30, 0],
+                duration: 600,
+                easing: 'easeOutQuad'
+            });
+        }
+
+        function downloadProcess() {
+            let content = "Quadratic Form Standard Form Calculation Process\n";
+            content += "================================================\n\n";
+
+            calculationProcess.forEach(step => {
+                if (step.description) {
+                    content += `Step ${step.step}: ${step.description.en}\n`;
+                }
+                if (step.matrix) {
+                    content += "Transformation Matrix:\n";
+                    content += MatrixOperations.formatMatrixText(step.matrix) + "\n";
+                }
+                if (step.currentA) {
+                    content += "Current Matrix A:\n";
+                    content += MatrixOperations.formatMatrixText(step.currentA) + "\n";
+                }
+                content += "----------------------------------------\n";
+            });
+
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'QuadraticForm_Standard_Calculation_Process.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            Utils.showNotification('Calculation process downloaded successfully!', 'success');
+        }
+    </script>
+</body>
+
+</html>

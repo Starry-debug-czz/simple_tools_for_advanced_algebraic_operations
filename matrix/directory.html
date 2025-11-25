@@ -1,0 +1,1226 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Function Directory - Linear Algebra Code World</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            --neon-blue: #00CCFF;
+            --neon-purple: #6C00FF;
+            --fluorescent-green: #00FFC6;
+            --deep-space: #0A0A14;
+            --holographic-silver: #C0C0C0;
+            --neon-red: #FF0066;
+            --electric-blue: #0099FF;
+        }
+
+        body {
+            font-family: 'Exo 2', sans-serif;
+            background: var(--deep-space);
+            overflow-x: hidden;
+        }
+
+        .orbitron {
+            font-family: 'Orbitron', monospace;
+        }
+
+        .cosmic-bg {
+            background: linear-gradient(135deg, var(--deep-space) 0%, #1a1a2e 50%, #16213e 100%);
+            position: relative;
+        }
+
+        .holographic-grid {
+            background-image:
+                linear-gradient(rgba(0, 204, 255, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 204, 255, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: gridMove 20s linear infinite;
+        }
+
+        @keyframes gridMove {
+            0% {
+                background-position: 0 0;
+            }
+
+            100% {
+                background-position: 50px 50px;
+            }
+        }
+
+        .nav-blur {
+            backdrop-filter: blur(20px);
+            background: rgba(10, 10, 20, 0.8);
+        }
+
+        .function-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .function-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 204, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .function-card:hover::before {
+            left: 100%;
+        }
+
+        .function-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--neon-blue);
+            box-shadow: 0 10px 30px rgba(0, 204, 255, 0.3);
+        }
+
+        .matrix-ops {
+            border-left: 4px solid var(--neon-blue);
+        }
+
+        .quadratic-forms {
+            border-left: 4px solid var(--fluorescent-green);
+        }
+
+        .other-functions {
+            border-left: 4px solid var(--holographic-silver);
+        }
+
+        .exit-function {
+            border-left: 4px solid var(--fluorescent-green);
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .function-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin: 0 auto 1rem;
+            position: relative;
+        }
+
+        .matrix-ops .function-icon {
+            background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+            box-shadow: 0 0 20px rgba(0, 204, 255, 0.5);
+        }
+
+        .quadratic-forms .function-icon {
+            background: linear-gradient(135deg, var(--fluorescent-green), #00cc99);
+            box-shadow: 0 0 20px rgba(0, 255, 198, 0.5);
+        }
+
+        .other-functions .function-icon {
+            background: linear-gradient(135deg, var(--holographic-silver), #a0a0a0);
+            box-shadow: 0 0 20px rgba(192, 192, 192, 0.5);
+        }
+
+        .exit-function .function-icon {
+            background: linear-gradient(135deg, var(--deep-space), #000);
+            border: 2px solid var(--fluorescent-green);
+            box-shadow: 0 0 20px rgba(0, 255, 198, 0.3);
+        }
+
+        .code-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: rgba(10, 10, 20, 0.95);
+            border: 2px solid var(--neon-blue);
+            border-radius: 10px;
+            padding: 20px;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            z-index: 1000;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .code-popup.show {
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .code-popup h3 {
+            color: var(--neon-blue);
+            margin-bottom: 15px;
+            font-family: 'Orbitron', monospace;
+        }
+
+        .code-popup pre {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .close-popup {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            color: var(--neon-blue);
+            font-size: 24px;
+            cursor: pointer;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .particle-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: var(--neon-blue);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0px) rotate(0deg);
+                opacity: 0;
+            }
+
+            50% {
+                transform: translateY(-100px) rotate(180deg);
+                opacity: 1;
+            }
+        }
+
+        /* === 自定义鼠标效果 === */
+        .custom-cursor {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            background: var(--neon-blue);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            mix-blend-mode: screen;
+            transition: transform 0.1s ease;
+            box-shadow: 0 0 10px var(--neon-blue), 0 0 20px var(--neon-blue);
+        }
+
+        .cursor-trail {
+            position: fixed;
+            width: 6px;
+            height: 6px;
+            background: var(--fluorescent-green);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9998;
+            opacity: 0.7;
+            box-shadow: 0 0 5px var(--fluorescent-green);
+        }
+
+        /* 隐藏默认光标 */
+        body {
+            cursor: none !important;
+        }
+
+        /* 悬停时鼠标效果 */
+        .custom-cursor.hover {
+            transform: scale(1.5);
+            background: var(--fluorescent-green);
+            box-shadow: 0 0 15px var(--fluorescent-green), 0 0 30px var(--fluorescent-green);
+        }
+
+        /* === 自定义鼠标效果结束 === */
+
+        /* === 银河星海背景 === */
+        .galaxy-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .rotating-galaxy {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 200vw;
+            height: 200vw;
+            background:
+                radial-gradient(circle at 30% 30%, rgba(0, 204, 255, 0.6) 0%, transparent 50%),
+                radial-gradient(circle at 70% 70%, rgba(108, 0, 255, 0.5) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(0, 255, 198, 0.4) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 0, 102, 0.3) 0%, transparent 40%),
+                radial-gradient(circle at 20% 80%, rgba(255, 153, 0, 0.3) 0%, transparent 40%);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            animation:
+                galaxyRotate 40s linear infinite,
+                galaxyPulse 15s ease-in-out infinite alternate;
+            filter: blur(60px);
+            opacity: 0.8;
+        }
+
+        .nebula-clouds {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(circle at 20% 80%, rgba(0, 204, 255, 0.1) 0%, transparent 40%),
+                radial-gradient(circle at 80% 20%, rgba(108, 0, 255, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 40% 40%, rgba(0, 255, 198, 0.08) 0%, transparent 30%);
+            animation: nebulaPulse 20s ease-in-out infinite alternate;
+        }
+
+        .twinkling-stars {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                radial-gradient(2px 2px at 20% 30%, rgba(255, 255, 255, 0.8), transparent),
+                radial-gradient(2px 2px at 40% 70%, rgba(255, 255, 255, 0.6), transparent),
+                radial-gradient(1px 1px at 60% 20%, rgba(255, 255, 255, 0.7), transparent),
+                radial-gradient(1px 1px at 80% 50%, rgba(255, 255, 255, 0.5), transparent),
+                radial-gradient(2px 2px at 10% 80%, rgba(255, 255, 255, 0.9), transparent),
+                radial-gradient(1px 1px at 90% 10%, rgba(255, 255, 255, 0.6), transparent),
+                radial-gradient(2px 2px at 70% 90%, rgba(255, 255, 255, 0.8), transparent);
+            animation: starsTwinkle 4s ease-in-out infinite;
+        }
+
+        /* 星海动画 */
+        @keyframes galaxyRotate {
+            0% {
+                transform: translate(-50%, -50%) rotate(0deg) scale(1);
+            }
+
+            50% {
+                transform: translate(-50%, -50%) rotate(180deg) scale(1.1);
+            }
+
+            100% {
+                transform: translate(-50%, -50%) rotate(360deg) scale(1);
+            }
+        }
+
+        @keyframes galaxyPulse {
+            0% {
+                opacity: 0.6;
+                transform: translate(-50%, -50%) scale(1);
+            }
+
+            100% {
+                opacity: 0.9;
+                transform: translate(-50%, -50%) scale(1.2);
+            }
+        }
+
+        @keyframes nebulaPulse {
+            0% {
+                opacity: 0.3;
+                transform: scale(1);
+            }
+
+            100% {
+                opacity: 0.7;
+                transform: scale(1.2);
+            }
+        }
+
+        @keyframes starsTwinkle {
+
+            0%,
+            100% {
+                opacity: 0.3;
+            }
+
+            50% {
+                opacity: 1;
+            }
+        }
+
+        /* 星星闪烁动画 */
+        @keyframes starTwinkle {
+
+            0%,
+            100% {
+                opacity: 0.2;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 1;
+                transform: scale(1.3);
+            }
+        }
+
+        /* 星星旋转动画 */
+        @keyframes starOrbit {
+            0% {
+                transform:
+                    rotate(0deg) translateX(calc(30px * var(--orbit-radius, 1))) rotate(0deg);
+            }
+
+            100% {
+                transform:
+                    rotate(360deg) translateX(calc(30px * var(--orbit-radius, 1))) rotate(-360deg);
+            }
+        }
+
+        /* === 大标题特效 === */
+        .neon-glow-text {
+            text-shadow:
+                0 0 10px var(--neon-blue),
+                0 0 20px var(--neon-blue),
+                0 0 30px var(--neon-blue),
+                0 0 40px var(--neon-purple);
+            animation: neonPulse 2s ease-in-out infinite alternate;
+        }
+
+        .fluorescent-text-glow {
+            text-shadow:
+                0 0 10px var(--fluorescent-green),
+                0 0 20px var(--fluorescent-green),
+                0 0 30px var(--fluorescent-green);
+            animation: fluorescentPulse 2s ease-in-out infinite alternate;
+        }
+
+        .neon-text-glow {
+            text-shadow:
+                0 0 5px var(--neon-blue),
+                0 0 10px var(--neon-blue),
+                0 0 15px var(--neon-blue);
+        }
+
+        .fluorescent-text-glow {
+            text-shadow:
+                0 0 5px var(--fluorescent-green),
+                0 0 10px var(--fluorescent-green),
+                0 0 15px var(--fluorescent-green);
+        }
+
+        .neon-text-glow-sub,
+        .fluorescent-text-glow-sub {
+            text-shadow:
+                0 0 3px currentColor,
+                0 0 6px currentColor;
+        }
+
+        .neon-text-sub {
+            color: var(--neon-blue);
+            text-shadow: 0 0 5px var(--neon-blue);
+        }
+
+        .fluorescent-text-sub {
+            color: var(--fluorescent-green);
+            text-shadow: 0 0 5px var(--fluorescent-green);
+        }
+
+        @keyframes neonPulse {
+            from {
+                text-shadow:
+                    0 0 10px var(--neon-blue),
+                    0 0 20px var(--neon-blue),
+                    0 0 30px var(--neon-blue);
+            }
+
+            to {
+                text-shadow:
+                    0 0 15px var(--neon-blue),
+                    0 0 25px var(--neon-blue),
+                    0 0 35px var(--neon-blue),
+                    0 0 45px var(--neon-purple);
+            }
+        }
+
+        @keyframes fluorescentPulse {
+            from {
+                text-shadow:
+                    0 0 10px var(--fluorescent-green),
+                    0 0 20px var(--fluorescent-green),
+                    0 0 30px var(--fluorescent-green);
+            }
+
+            to {
+                text-shadow:
+                    0 0 15px var(--fluorescent-green),
+                    0 0 25px var(--fluorescent-green),
+                    0 0 35px var(--fluorescent-green),
+                    0 0 45px #00cc99;
+            }
+        }
+
+        .holographic-text {
+            background: linear-gradient(45deg,
+                    var(--neon-blue),
+                    var(--fluorescent-green),
+                    var(--neon-purple),
+                    var(--electric-blue));
+            background-size: 400% 400%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: holographicShift 3s ease-in-out infinite;
+        }
+
+        @keyframes holographicShift {
+
+            0%,
+            100% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+        }
+    </style>
+</head>
+
+<body class="cosmic-bg min-h-screen">
+    <!-- 添加银河星海背景 -->
+    <div class="galaxy-bg">
+        <div class="rotating-galaxy"></div>
+        <div class="nebula-clouds"></div>
+        <div class="twinkling-stars"></div>
+    </div>
+
+    <!-- Particle Background -->
+    <div class="particle-container" id="particles"></div>
+
+    <!-- Holographic Grid -->
+    <div class="holographic-grid fixed inset-0 opacity-30"></div>
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 nav-blur border-b border-opacity-20 border-blue-400">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="orbitron text-xl font-bold text-blue-400">
+                    <span id="nav-title">Function Directory</span>
+                </div>
+                <div class="flex items-center space-x-6">
+                    <button class="px-6 py-2 liquid-metal text-white rounded-full electromagnetic-pulse"
+                        onclick="history.back()">
+                        <span id="back-text">← Back to Home</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="pt-24 pb-16">
+        <div class="container mx-auto px-6">
+            <!-- Header -->
+            <div class="text-center mb-16 relative z-10">
+                <h1 class="orbitron text-5xl md:text-7xl font-black mb-6 relative">
+                    <!-- 添加发光效果 -->
+                    <span class="neon-glow-text relative inline-block">
+                        <span class="bg-gradient-to-r from-blue-400 to-purple-600 bg-clip-text text-transparent">
+                            <div class="neon-text-glow">Function</div>
+                            <div class="text-2xl md:text-4xl neon-text-glow-sub">功能</div>
+                        </span>
+                    </span>
+                    <br>
+                    <span class="holographic-text relative inline-block mt-4">
+                        <span class="bg-gradient-to-r from-green-400 to-blue-400 bg-clip-text text-transparent">
+                            <div class="fluorescent-text-glow">Directory</div>
+                            <div class="text-2xl md:text-4xl fluorescent-text-glow-sub">目录</div>
+                        </span>
+                    </span>
+                </h1>
+                <div class="text-xl text-gray-300 max-w-3xl mx-auto relative">
+                    <div class="neon-text-sub">Choose from our comprehensive suite of linear algebra tools</div>
+                    <div class="text-sm opacity-80 mt-2 fluorescent-text-sub">从我们全面的线性代数工具套件中选择</div>
+                </div>
+            </div>
+
+            <!-- Function Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+                <!-- Matrix Addition -->
+                <div class="function-card matrix-ops p-8 rounded-2xl cursor-pointer" data-function="1">
+                    <div class="function-icon">
+                        <span>➕</span>
+                    </div>
+                    <h3 class="orbitron text-2xl font-bold mb-4 text-center text-blue-400">
+                        <div>1. Matrix Addition</div>
+                        <div class="text-sm font-normal">矩阵加法</div>
+                    </h3>
+                    <div class="text-gray-300 text-center mb-6">
+                        <div class="text-sm mb-1">Add two matrices of the same dimensions</div>
+                        <div class="text-xs opacity-80">对相同维度的两个矩阵进行逐元素加法运算</div>
+                    </div>
+                    <div class="text-center">
+                        <span class="inline-block bg-blue-600 text-white px-3 py-1 rounded-full text-sm">Matrix
+                            Operations | 矩阵运算</span>
+                    </div>
+                </div>
+
+                <!-- Matrix Multiplication -->
+                <div class="function-card matrix-ops p-8 rounded-2xl cursor-pointer" data-function="2">
+                    <div class="function-icon">
+                        <span>✖️</span>
+                    </div>
+                    <h3 class="orbitron text-2xl font-bold mb-4 text-center text-blue-400">
+                        <div>2. Matrix Multiplication</div>
+                        <div class="text-sm font-normal">矩阵乘法</div>
+                    </h3>
+                    <div class="text-gray-300 text-center mb-6">
+                        <div class="text-sm mb-1">Multiply matrices using dot product operations</div>
+                        <div class="text-xs opacity-80">使用点积运算进行矩阵乘法，带维度验证</div>
+                    </div>
+                    <div class="text-center">
+                        <span class="inline-block bg-blue-600 text-white px-3 py-1 rounded-full text-sm">Matrix
+                            Operations | 矩阵运算</span>
+                    </div>
+                </div>
+
+                <!-- Determinant Calculation -->
+                <div class="function-card matrix-ops p-8 rounded-2xl cursor-pointer" data-function="3">
+                    <div class="function-icon">
+                        <span>🔢</span>
+                    </div>
+                    <h3 class="orbitron text-2xl font-bold mb-4 text-center text-blue-400">
+                        <div>3. Determinant</div>
+                        <div class="text-sm font-normal">行列式</div>
+                    </h3>
+                    <div class="text-gray-300 text-center mb-6">
+                        <div class="text-sm mb-1">Calculate determinant using Laplace expansion</div>
+                        <div class="text-xs opacity-80">使用拉普拉斯展开法计算方阵的行列式</div>
+                    </div>
+                    <div class="text-center">
+                        <span class="inline-block bg-blue-600 text-white px-3 py-1 rounded-full text-sm">Matrix
+                            Operations | 矩阵运算</span>
+                    </div>
+                </div>
+
+                <!-- Matrix Inversion (Gaussian) -->
+                <div class="function-card matrix-ops p-8 rounded-2xl cursor-pointer" data-function="4">
+                    <div class="function-icon">
+                        <span>🔄</span>
+                    </div>
+                    <h3 class="orbitron text-2xl font-bold mb-4 text-center text-blue-400">
+                        <div>4. Matrix Inversion</div>
+                        <div class="text-sm font-normal">矩阵求逆</div>
+                    </h3>
+                    <div class="text-gray-300 text-center mb-6">
+                        <div class="text-sm mb-1">Invert matrices using Gaussian elimination</div>
+                        <div class="text-xs opacity-80">使用高斯消元法求矩阵逆，带逐步过程</div>
+                    </div>
+                    <div class="text-center">
+                        <span class="inline-block bg-blue-600 text-white px-3 py-1 rounded-full text-sm">Matrix
+                            Operations | 矩阵运算</span>
+                    </div>
+                </div>
+
+                <!-- Matrix Inversion (Adjugate) -->
+                <div class="function-card other-functions p-8 rounded-2xl cursor-pointer" data-function="5">
+                    <div class="function-icon">
+                        <span>🔀</span>
+                    </div>
+                    <h3 class="orbitron text-2xl font-bold mb-4 text-center text-gray-300">
+                        <div>5. Adjugate Method</div>
+                        <div class="text-sm font-normal">伴随矩阵法</div>
+                    </h3>
+                    <div class="text-gray-300 text-center mb-6">
+                        <div class="text-sm mb-1">Matrix inversion using cofactor matrix</div>
+                        <div class="text-xs opacity-80">使用余子式矩阵和伴随矩阵方法求矩阵逆</div>
+                    </div>
+                    <div class="text-center">
+                        <span class="inline-block bg-gray-600 text-white px-3 py-1 rounded-full text-sm">Other Functions
+                            | 其他功能</span>
+                    </div>
+                </div>
+
+                <!-- Matrix Rank -->
+                <div class="function-card other-functions p-8 rounded-2xl cursor-pointer" data-function="6">
+                    <div class="function-icon">
+                        <span>📊</span>
+                    </div>
+                    <h3 class="orbitron text-2xl font-bold mb-4 text-center text-gray-300">
+                        <div>6. Matrix Rank</div>
+                        <div class="text-sm font-normal">矩阵秩</div>
+                    </h3>
+                    <div class="text-gray-300 text-center mb-6">
+                        <div class="text-sm mb-1">Determine the rank using row reduction</div>
+                        <div class="text-xs opacity-80">使用行简化技术确定任何矩阵的秩</div>
+                    </div>
+                    <div class="text-center">
+                        <span class="inline-block bg-gray-600 text-white px-3 py-1 rounded-full text-sm">Other Functions
+                            | 其他功能</span>
+                    </div>
+                </div>
+
+                <!-- Quadratic Form (Standard) -->
+                <div class="function-card quadratic-forms p-8 rounded-2xl cursor-pointer" data-function="7">
+                    <div class="function-icon">
+                        <span>📐</span>
+                    </div>
+                    <h3 class="orbitron text-2xl font-bold mb-4 text-center text-green-400">
+                        <div>7. Standard Form</div>
+                        <div class="text-sm font-normal">标准型</div>
+                    </h3>
+                    <div class="text-gray-300 text-center mb-6">
+                        <div class="text-sm mb-1">Convert quadratic forms to standard form</div>
+                        <div class="text-xs opacity-80">使用正交变换将二次型转换为标准型</div>
+                    </div>
+                    <div class="text-center">
+                        <span class="inline-block bg-green-600 text-white px-3 py-1 rounded-full text-sm">Quadratic
+                            Forms | 二次型</span>
+                    </div>
+                </div>
+
+                <!-- Quadratic Form (Canonical) -->
+                <div class="function-card quadratic-forms p-8 rounded-2xl cursor-pointer" data-function="8">
+                    <div class="function-icon">
+                        <span>⚡</span>
+                    </div>
+                    <h3 class="orbitron text-2xl font-bold mb-4 text-center text-green-400">
+                        <div>8. Canonical Form</div>
+                        <div class="text-sm font-normal">规范型</div>
+                    </h3>
+                    <div class="text-gray-300 text-center mb-6">
+                        <div class="text-sm mb-1">Transform to canonical form using eigenvalues</div>
+                        <div class="text-xs opacity-80">使用特征值分解将二次型转换为规范型</div>
+                    </div>
+                    <div class="text-center">
+                        <span class="inline-block bg-green-600 text-white px-3 py-1 rounded-full text-sm">Quadratic
+                            Forms | 二次型</span>
+                    </div>
+                </div>
+
+                <!-- Augmented Matrix -->
+                <div class="function-card other-functions p-8 rounded-2xl cursor-pointer" data-function="9">
+                    <div class="function-icon">
+                        <span>🔗</span>
+                    </div>
+                    <h3 class="orbitron text-2xl font-bold mb-4 text-center text-gray-300">
+                        <div>9. Augmented Matrix</div>
+                        <div class="text-sm font-normal">增广矩阵</div>
+                    </h3>
+                    <div class="text-gray-300 text-center mb-6">
+                        <div class="text-sm mb-1">Solve systems using augmented matrix methods</div>
+                        <div class="text-xs opacity-80">使用增广矩阵方法求解方程组</div>
+                    </div>
+                    <div class="text-center">
+                        <span class="inline-block bg-gray-600 text-white px-3 py-1 rounded-full text-sm">Other Functions
+                            | 其他功能</span>
+                    </div>
+                </div>
+
+                <!-- Exit -->
+                <div class="function-card exit-function p-8 rounded-2xl cursor-pointer md:col-span-2 lg:col-span-1"
+                    data-function="0">
+                    <div class="function-icon">
+                        <span>🚪</span>
+                    </div>
+                    <h3 class="orbitron text-2xl font-bold mb-4 text-center text-green-400">
+                        <div>0. Exit</div>
+                        <div class="text-sm font-normal">退出</div>
+                    </h3>
+                    <div class="text-gray-300 text-center mb-6">
+                        <div class="text-sm mb-1">Return to the main homepage</div>
+                        <div class="text-xs opacity-80">返回主页</div>
+                    </div>
+                    <div class="text-center">
+                        <span
+                            class="inline-block bg-black border border-green-400 text-green-400 px-3 py-1 rounded-full text-sm">Navigation
+                            | 导航</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Code Popup -->
+    <div class="overlay" id="overlay"></div>
+    <div class="code-popup" id="codePopup">
+        <button class="close-popup" onclick="closeCodePopup()">&times;</button>
+        <h3 id="popupTitle">Function Code</h3>
+        <pre id="popupCode"></pre>
+    </div>
+
+    <!-- Footer -->
+    <footer class="py-12 border-t border-gray-800">
+        <div class="container mx-auto px-6 text-center">
+            <div class="orbitron text-lg text-blue-400 mb-4">
+                <div>© 2025 czz's Linear Algebra Code World</div>
+                <div class="text-sm font-normal">© 2025 czz的线性代数代码世界</div>
+            </div>
+            <div class="text-gray-400">
+                <div>Where mathematics meets the future</div>
+                <div class="text-sm opacity-80">数学与未来相遇的地方</div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Language translations
+        const translations = {
+            en: {
+                navTitle: 'Function Directory',
+                backText: '← Back to Home',
+                mainTitle: 'Function',
+                subTitle: 'Directory',
+                description: 'Choose from our comprehensive suite of linear algebra tools. Each function provides step-by-step visualization and detailed explanations.',
+                func1Desc: 'Add two matrices of the same dimensions with element-wise operations',
+                func2Desc: 'Multiply matrices using dot product operations with dimension validation',
+                func3Desc: 'Calculate the determinant of square matrices using Laplace expansion',
+                func4Desc: 'Invert matrices using Gaussian elimination with step-by-step process',
+                func5Desc: 'Matrix inversion using cofactor matrix and adjugate method',
+                func6Desc: 'Determine the rank of any matrix using row reduction techniques',
+                func7Desc: 'Convert quadratic forms to standard form using orthogonal transformations',
+                func8Desc: 'Transform quadratic forms to canonical form using eigenvalue decomposition',
+                func9Desc: 'Solve systems of equations using augmented matrix methods',
+                func0Desc: 'Return to the main homepage with cosmic transition',
+                footerText: '© 2025 czz\'s Linear Algebra Code World',
+                footerSubtext: 'Where mathematics meets the future'
+            },
+            zh: {
+                navTitle: '功能目录',
+                backText: '← 返回主页',
+                mainTitle: '功能',
+                subTitle: '目录',
+                description: '从我们全面的线性代数工具套件中选择。每个功能都提供逐步可视化和详细说明。',
+                func1Desc: '对相同维度的两个矩阵进行逐元素加法运算',
+                func2Desc: '使用点积运算进行矩阵乘法，带维度验证',
+                func3Desc: '使用拉普拉斯展开法计算方阵的行列式',
+                func4Desc: '使用高斯消元法求矩阵逆，带逐步过程',
+                func5Desc: '使用余子式矩阵和伴随矩阵方法求矩阵逆',
+                func6Desc: '使用行简化技术确定任何矩阵的秩',
+                func7Desc: '使用正交变换将二次型转换为标准型',
+                func8Desc: '使用特征值分解将二次型转换为规范型',
+                func9Desc: '使用增广矩阵方法求解方程组',
+                func0Desc: '返回主页，带宇宙过渡效果',
+                footerText: '© 2025 czz的线性代数代码世界',
+                footerSubtext: '数学与未来相遇的地方'
+            }
+        };
+
+        let currentLang = 'en';
+
+        // Function code snippets
+        const functionCodes = {
+            1: `// Matrix Addition
+Matrix MatrixAddition(const Matrix& A, const Matrix& B) {
+    if (A.rows != B.rows || A.cols != B.cols) {
+        throw std::invalid_argument("Matrix dimensions must match");
+    }
+    
+    Matrix result(A.rows, A.cols);
+    for (int i = 0; i < A.rows; i++) {
+        for (int j = 0; j < A.cols; j++) {
+            result.data[i][j] = A.data[i][j] + B.data[i][j];
+        }
+    }
+    return result;
+}`,
+            2: `// Matrix Multiplication
+Matrix MatrixMultiplication(const Matrix& A, const Matrix& B) {
+    if (A.cols != B.rows) {
+        throw std::invalid_argument("Invalid dimensions for multiplication");
+    }
+    
+    Matrix result(A.rows, B.cols);
+    for (int i = 0; i < A.rows; i++) {
+        for (int j = 0; j < B.cols; j++) {
+            double sum = 0;
+            for (int k = 0; k < A.cols; k++) {
+                sum += A.data[i][k] * B.data[k][j];
+            }
+            result.data[i][j] = sum;
+        }
+    }
+    return result;
+}`,
+            3: `// Determinant Calculation
+double Determinant(const Matrix& A) {
+    if (A.rows != A.cols) {
+        throw std::invalid_argument("Matrix must be square");
+    }
+    
+    if (A.rows == 1) return A.data[0][0];
+    if (A.rows == 2) {
+        return A.data[0][0] * A.data[1][1] - A.data[0][1] * A.data[1][0];
+    }
+    
+    double det = 0;
+    for (int j = 0; j < A.cols; j++) {
+        det += A.data[0][j] * Cofactor(A, 0, j);
+    }
+    return det;
+}`,
+            4: `// Matrix Inversion (Gaussian)
+Matrix GaussianInverse(Matrix A) {
+    int n = A.rows;
+    Matrix inverse(n, n);
+    
+    // Create augmented matrix [A|I]
+    Matrix augmented(n, 2*n);
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            augmented.data[i][j] = A.data[i][j];
+            augmented.data[i][j+n] = (i == j) ? 1 : 0;
+        }
+    }
+    
+    // Perform Gaussian elimination
+    for (int i = 0; i < n; i++) {
+        // Partial pivoting
+        int maxRow = i;
+        for (int k = i+1; k < n; k++) {
+            if (abs(augmented.data[k][i]) > abs(augmented.data[maxRow][i])) {
+                maxRow = k;
+            }
+        }
+        std::swap(augmented.data[i], augmented.data[maxRow]);
+        
+        // Make diagonal 1
+        double div = augmented.data[i][i];
+        for (int j = 0; j < 2*n; j++) {
+            augmented.data[i][j] /= div;
+        }
+        
+        // Eliminate column
+        for (int k = 0; k < n; k++) {
+            if (k != i) {
+                double factor = augmented.data[k][i];
+                for (int j = 0; j < 2*n; j++) {
+                    augmented.data[k][j] -= factor * augmented.data[i][j];
+                }
+            }
+        }
+    }
+    
+    // Extract inverse
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            inverse.data[i][j] = augmented.data[i][j+n];
+        }
+    }
+    return inverse;
+}`
+        };
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', () => {
+            createParticles();
+            initMouseEffects();
+            initializeFunctionCards();
+            updateLanguage();
+            animateCards();
+            
+            // 添加星海初始化
+            initGalaxyBackground();
+        });
+
+        // 添加星海初始化函数
+        function initGalaxyBackground() {
+            // 确保星海背景可见
+            const galaxyBg = document.querySelector('.galaxy-bg');
+            if (galaxyBg) {
+                galaxyBg.style.zIndex = '-1';
+                galaxyBg.style.display = 'block';
+                galaxyBg.style.opacity = '1';
+                console.log('目录页星海背景已初始化');
+            }
+            
+            // 添加动态星星
+            createDynamicStars();
+        }
+
+        function createDynamicStars() {
+            const starsContainer = document.querySelector('.twinkling-stars');
+            if (!starsContainer) return;
+            
+            // 清除现有星星
+            starsContainer.innerHTML = '';
+            
+            // 创建动态星星
+            for (let i = 0; i < 2000; i++) {
+                const star = document.createElement('div');
+                star.style.position = 'absolute';
+                
+                const size = Math.random() * 3 + 1;
+                star.style.width = size + 'px';
+                star.style.height = size + 'px';
+                
+                const colors = ['#FFFFFF', '#00CCFF', '#FFFF99', '#E6E6FA', '#00FFC6'];
+                star.style.background = colors[Math.floor(Math.random() * colors.length)];
+                star.style.borderRadius = '50%';
+                
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.opacity = Math.random() * 0.8 + 0.2;
+                
+                const animationDuration = Math.random() * 5 + 3;
+                const orbitDuration = Math.random() * 30 + 15;
+                star.style.animation = `
+                    starTwinkle ${animationDuration}s infinite alternate,
+                    starOrbit ${orbitDuration}s linear infinite
+                `;
+                
+                star.style.setProperty('--orbit-radius', Math.random() * 2 + 0.5);
+                star.style.boxShadow = `0 0 ${size * 2}px currentColor`;
+                
+                starsContainer.appendChild(star);
+            }
+        }
+
+        function createParticles() {
+            const particleContainer = document.getElementById('particles');
+            const particleCount = 50;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 6 + 's';
+                particle.style.animationDuration = (Math.random() * 4 + 4) + 's';
+
+                // Random colors between neon blue and fluorescent green
+                const colors = ['#00CCFF', '#00FFC6', '#6C00FF'];
+                particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+
+                particleContainer.appendChild(particle);
+            }
+        }
+
+        function initMouseEffects() {
+            // 创建自定义光标
+            const cursor = document.createElement('div');
+            cursor.className = 'custom-cursor';
+            document.body.appendChild(cursor);
+
+            // 创建轨迹点
+            const trails = [];
+            for (let i = 0; i < 10; i++) {
+                const trail = document.createElement('div');
+                trail.className = 'cursor-trail';
+                document.body.appendChild(trail);
+                trails.push({
+                    element: trail,
+                    x: 0, y: 0,
+                    delay: i * 0.3
+                });
+            }
+
+            // 鼠标移动监听
+            document.addEventListener('mousemove', (e) => {
+                updateCursor(e.clientX, e.clientY, cursor, trails);
+            });
+
+            // 为交互元素添加悬停效果
+            initCursorHoverEffects(cursor);
+        }
+
+        function updateCursor(x, y, cursor, trails) {
+            // 更新主光标
+            if (cursor) {
+                cursor.style.left = (x - 10) + 'px';
+                cursor.style.top = (y - 10) + 'px';
+            }
+
+            // 更新轨迹点（延迟效果）
+            trails.forEach((trail, index) => {
+                setTimeout(() => {
+                    if (trail.element) {
+                        trail.element.style.left = (x - 3) + 'px';
+                        trail.element.style.top = (y - 3) + 'px';
+                    }
+                }, index * 50);
+            });
+        }
+
+        function initCursorHoverEffects(cursor) {
+            // 为可交互元素添加悬停效果
+            const hoverElements = document.querySelectorAll('button, .function-card, .close-popup');
+
+            hoverElements.forEach(element => {
+                element.addEventListener('mouseenter', () => {
+                    if (cursor) {
+                        cursor.classList.add('hover');
+                    }
+                });
+
+                element.addEventListener('mouseleave', () => {
+                    if (cursor) {
+                        cursor.classList.remove('hover');
+                    }
+                });
+            });
+        }
+
+        function initializeFunctionCards() {
+            document.querySelectorAll('.function-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    const functionNum = card.dataset.function;
+                    if (functionNum === '0') {
+                        navigateToHome();
+                    } else {
+                        navigateToFunction(functionNum);
+                    }
+                });
+            });
+        }
+
+        function navigateToHome() {
+            const overlay = document.createElement('div');
+            overlay.className = 'fixed inset-0 bg-black z-50 flex items-center justify-center';
+            overlay.innerHTML = `
+                <div class="text-center">
+                    <div class="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-400 mb-4"></div>
+                    <div class="text-blue-400 text-xl">Returning to Home...</div>
+                </div>
+            `;
+
+            document.body.appendChild(overlay);
+
+            anime({
+                targets: overlay,
+                opacity: [0, 1],
+                duration: 500,
+                easing: 'easeInOutQuad',
+                complete: () => {
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 1000);
+                }
+            });
+        }
+
+        function navigateToFunction(functionNum) {
+            const overlay = document.createElement('div');
+            overlay.className = 'fixed inset-0 bg-black z-50 flex items-center justify-center';
+            overlay.innerHTML = `
+                <div class="text-center">
+                    <div class="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-400 mb-4"></div>
+                    <div class="text-blue-400 text-xl">Loading Function ${functionNum}...</div>
+                </div>
+            `;
+
+            document.body.appendChild(overlay);
+
+            anime({
+                targets: overlay,
+                opacity: [0, 1],
+                duration: 500,
+                easing: 'easeInOutQuad',
+                complete: () => {
+                    setTimeout(() => {
+                        window.location.href = `function-${functionNum}.html`;
+                    }, 1000);
+                }
+            });
+        }
+
+        function showCodePopup(functionNum) {
+            const popup = document.getElementById('codePopup');
+            const overlay = document.getElementById('overlay');
+            const title = document.getElementById('popupTitle');
+            const code = document.getElementById('popupCode');
+
+            if (functionCodes[functionNum]) {
+                title.textContent = `Function ${functionNum} - Core Implementation`;
+                code.textContent = functionCodes[functionNum];
+
+                overlay.classList.add('show');
+                popup.classList.add('show');
+            }
+        }
+
+        function closeCodePopup() {
+            const popup = document.getElementById('codePopup');
+            const overlay = document.getElementById('overlay');
+
+            popup.classList.remove('show');
+            overlay.classList.remove('show');
+        }
+
+        function animateCards() {
+            anime({
+                targets: '.function-card',
+                translateY: [50, 0],
+                opacity: [0, 1],
+                duration: 800,
+                delay: anime.stagger(100),
+                easing: 'easeOutQuad'
+            });
+        }
+
+        function updateLanguage() {
+            const t = translations[currentLang];
+
+            Object.keys(t).forEach(key => {
+                const element = document.getElementById(key.replace(/([A-Z])/g, '-$1').toLowerCase());
+                if (element) {
+                    element.textContent = t[key];
+                }
+            });
+        }
+
+        // Close popup when clicking overlay
+        document.getElementById('overlay').addEventListener('click', closeCodePopup);
+    </script>
+</body>
+
+</html>
